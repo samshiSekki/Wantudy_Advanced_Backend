@@ -18,12 +18,12 @@ public class StudyDesiredTime {
     private Long studyDesiredTimeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonManagedReference
+//    @JsonManagedReference
     @JoinColumn(name="studyId")
     private Study study;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonManagedReference
+//    @JsonManagedReference
     @JoinColumn(name="desiredTimeId")
     private DesiredTime desiredTime;
 

@@ -1,5 +1,6 @@
 package com.example.wantudy.study.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,5 +24,7 @@ public class RequiredInfo {
     private String requiredInfoName;
 
     @OneToMany(mappedBy = "requiredInfo")
+//    @JsonBackReference
+    @Builder.Default
     private List<StudyRequiredInfo> studies = new ArrayList<>();
 }
