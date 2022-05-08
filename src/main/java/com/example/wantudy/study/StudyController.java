@@ -1,6 +1,7 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.Study;
+import com.example.wantudy.study.dto.CategoryDto;
 import com.example.wantudy.study.dto.StudyCreateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,6 @@ public class StudyController {
 
     @PostMapping("/test")
     public Study save(@RequestBody StudyCreateDto studycreateDto){
-
         return studyService.createStudy(studycreateDto);
     }
 }

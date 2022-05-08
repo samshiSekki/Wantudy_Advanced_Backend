@@ -1,11 +1,8 @@
 package com.example.wantudy.study.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Optional;
 
 @Entity
 @Getter
@@ -13,6 +10,14 @@ import java.util.Optional;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name="study_category",
+        uniqueConstraints={
+                @UniqueConstraint(
+                        columnNames={"study_id","category_id"}
+                )
+        }
+)
 public class StudyCategory {
 
     @Id
@@ -20,20 +25,20 @@ public class StudyCategory {
     private Long studyCategoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-//    @JsonManagedReference
-    @JoinColumn(name="studyId")
+    @JoinColumn(name="study_id")
     private Study study;
 
     @ManyToOne(fetch = FetchType.LAZY)
-//    @JsonManagedReference
-    @JoinColumn(name="categoryId")
+    @JoinColumn(name="category_id")
     private Category category;
 
-    //==생성 메서드==//
-    public static StudyCategory createStudyCategory(Category category){
-        StudyCategory studyCategory = new StudyCategory();
-        studyCategory.setCategory(category);
+    //==연관관계 메서드==//
 
-        return studyCategory;
+    public void addStudyAndCategory(Study study, Category category){
+        this.study =study;
+        this.category = category;
+        study.getCategories().add(this);
+        category.getStudies().add(this);
     }
+
 }
