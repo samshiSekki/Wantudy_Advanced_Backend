@@ -18,14 +18,28 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(name = "username", length = 50, unique = true)
-    private String username;
+    @Column(name = "email", length = 50, unique = true)
+    private String email;
 
     @Column(name = "password", length = 100)
     private String password;
 
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
+    @Column
+    private String profileImage;
+
+    @Column
+    private String nickname;
+
+    @Column
+    private Boolean applicationState;
+
+    @Column
+    private Boolean profileState;
+
+    @Column(length=50)
+    private String selfIntroduction;
+
+    @Column
+    private String provider;
+
 }

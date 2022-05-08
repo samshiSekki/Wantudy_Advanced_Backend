@@ -1,22 +1,21 @@
 package com.example.wantudy.users;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.wantudy.AuthorizationKakao;
+import com.example.wantudy.OAuth2Kakao;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 
 @Service
-@Transactional
+@AllArgsConstructor
 public class UserService {
-
-    private final UserRepository userRepository;
-
-    @Autowired
-    public UserService(UserRepository userRepository){
-        this.userRepository=userRepository;
-    }
-
-    void saveUser(User user){
-        userRepository.save(user);
+    private final OAuth2Kakao oauth2Kakao;
+    // 카카오로 인증받기
+    public void oauth2AuthorizationKakao(String code) throws JsonProcessingException {
+        AuthorizationKakao authorization = oauth2Kakao.callTokenApi(code);
+        String userInfoFromKakao = oauth2Kakao.callGetUserByAccessToken(authorization.getAccess_token());
+        System.out.println("userInfoFromKakao = " + userInfoFromKakao);
     }
 }
