@@ -32,13 +32,12 @@ public class StudyCategory {
     @JoinColumn(name="category_id")
     private Category category;
 
-    //==연관관계 메서드==//
-
-    public void addStudyAndCategory(Study study, Category category){
-        this.study =study;
-        this.category = category;
-        study.getCategories().add(this);
-        category.getStudies().add(this);
-    }
-
+//    //==연관관계 메서드==//
+//
+//    public void addStudyAndCategory(Study study, Category category){
+//        this.study =study;
+//        this.category = category;
+//        study.getCategories().add(this);
+//        category.getStudies().add(this);
+//    }
 }

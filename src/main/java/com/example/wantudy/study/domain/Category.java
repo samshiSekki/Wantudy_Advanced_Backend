@@ -9,7 +9,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category {
@@ -22,7 +21,11 @@ public class Category {
     private String categoryName;
 
     @OneToMany(mappedBy = "category")
-    @Builder.Default
     private List<StudyCategory> studies = new ArrayList<>();
+
+    @Builder
+    public Category(String categoryName){
+        this.categoryName = categoryName;
+    }
 
 }

@@ -10,22 +10,24 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class DesiredTime {
 
     @Id
     @GeneratedValue
-    @Column(name="desiredTimeId")
+    @Column(name="desired_time_id")
     private Long desiredTimeId;
 
-    @Column
+    @Column(name="desired_time")
     private String desiredTime;
 
     @OneToMany(mappedBy = "desiredTime")
-//    @JsonBackReference
-    @Builder.Default
     private List<StudyDesiredTime> studies = new ArrayList<>();
+
+    @Builder
+    public DesiredTime(String desiredTime){
+        this.desiredTime = desiredTime;
+    }
 
 }

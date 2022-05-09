@@ -19,12 +19,12 @@ public class StudyRequiredInfo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JoinColumn(name="studyId")
+    @JoinColumn(name="study_id")
     private Study study;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JoinColumn(name="requiredInfoId")
+    @JoinColumn(name="required_info_id")
     private RequiredInfo requiredInfo;
 
 }

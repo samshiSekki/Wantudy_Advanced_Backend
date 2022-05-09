@@ -1,6 +1,5 @@
 package com.example.wantudy.study.dto;
 
-import com.example.wantudy.study.domain.*;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -9,18 +8,19 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
+@NoArgsConstructor
 public class StudyCreateDto {
 
-    private List<String> categories = new ArrayList<>();
-//    private String categories;
-//    private List<StudyCategory> categories = new ArrayList<>();
     private String studyName;
-
-//    public Study toEntity() {
-//        return Study.builder()
-//                .studyName(studyName)
-//                .build();
-//    }
+    private String description;
+    private String level;
+    private String format;
+    private String location;
+    private String period;
+    private Number peopleNum;
+    private Date deadline;
+    private List<String> categories = new ArrayList<>();
+    private List<String> desiredTime = new ArrayList<>();
+    private List<String> requiredInfo = new ArrayList<>();
+//    private List<String> studyFiles = new ArrayList<>();
 }

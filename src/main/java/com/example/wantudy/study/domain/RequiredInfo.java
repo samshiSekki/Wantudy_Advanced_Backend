@@ -10,21 +10,24 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RequiredInfo {
 
     @Id
     @GeneratedValue
-    @Column
-    private Long requiredInfo;
+    @Column(name = "required_info_id")
+    private Long requiredInfoId;
 
-    @Column
+    @Column(name = "required_info_name")
     private String requiredInfoName;
 
     @OneToMany(mappedBy = "requiredInfo")
-//    @JsonBackReference
-    @Builder.Default
     private List<StudyRequiredInfo> studies = new ArrayList<>();
+
+    @Builder
+    public RequiredInfo(String requiredInfoName){
+        this.requiredInfoName = requiredInfoName;
+    }
+
 }

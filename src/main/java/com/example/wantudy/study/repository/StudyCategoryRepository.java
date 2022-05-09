@@ -1,4 +1,4 @@
-package com.example.wantudy.study;
+package com.example.wantudy.study.repository;
 
 import com.example.wantudy.study.domain.Category;
 import com.example.wantudy.study.domain.Study;
@@ -10,4 +10,5 @@ import java.util.List;
 
 @Repository
 public interface StudyCategoryRepository extends JpaRepository<StudyCategory, Long> {
+    List<StudyCategory> findByStudy(Study study);
 }

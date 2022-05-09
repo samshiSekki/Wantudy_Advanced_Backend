@@ -8,20 +8,18 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@Table(name = "studyFile")
 @Setter
-@Builder
 public class StudyFile {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(name="studyFileId")
+    @Column(name="study_file_id")
     private Long studyFileId;
 
-    @Column(name="fileName")
+    @Column(name="file_name")
     private String fileName;
 
-    @Column(name="filePath")
+    @Column(name="file_path")
     private String filePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,11 +31,6 @@ public class StudyFile {
         this.studyFileId = studyFileId;
         this.fileName = fileName;
         this.filePath = filePath;
-        this.study = study;
-    }
-
-    //Study 정보 저장
-    public void setStudy(Study study){
         this.study = study;
     }
 }
