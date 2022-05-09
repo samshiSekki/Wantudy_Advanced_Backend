@@ -24,7 +24,7 @@ public class StudyController {
         Study study = studyService.findByStudyId(studyId);
         StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
 
-        return new ResponseEntity<>(EntityResponseDto.withData(200, "스터디 상세 페이지 조회", studyDetailResponseDto), HttpStatus.OK);
+        return new ResponseEntity<>(new EntityResponseDto(200, "스터디 상세 페이지 조회", studyDetailResponseDto), HttpStatus.OK);
 
     }
 
@@ -57,7 +57,7 @@ public class StudyController {
             studyService.saveRequiredInfo(requiredInfoList, study);
         }
 
-        return new ResponseEntity<>(EntityResponseDto.withData(201,"스터디 등록",study), HttpStatus.CREATED);
+        return new ResponseEntity<>(new EntityResponseDto(201,"스터디 등록",study), HttpStatus.CREATED);
     }
 
 }

@@ -13,10 +13,4 @@ public class EntityResponseDto {
     private String message;
     private Object data;
 
-    public static EntityResponseDto withData(final int status, final String msg, final Object data) {
-        return EntityResponseDto.builder()
-                .data(data)
-                .message(msg)
-                .status(status).build();
-    }
 }
