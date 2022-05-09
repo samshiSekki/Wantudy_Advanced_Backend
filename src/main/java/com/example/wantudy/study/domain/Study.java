@@ -1,6 +1,7 @@
 package com.example.wantudy.study.domain;
 
 import com.example.wantudy.users.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties(value={"categories", "desiredTime","requiredInfo"})
 public class Study {
 
     @Id
@@ -19,7 +21,7 @@ public class Study {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long studyId;
 
-    //연관관계 주인
+    //연관관계 주인 ( 항상 N 이 연관관계 주인 )
     //이 값을 변경하면 user_id foreign key값이 변경됨
     //study입장에서 User랑 N:1 관계
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,9 +40,9 @@ public class Study {
     @Column(name = "required_info")
     private List<StudyRequiredInfo> requiredInfo = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @Column(name = "study_file")
-//    private List<StudyFile> studyFiles = new ArrayList<>();
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "study_file")
+    private List<StudyFile> studyFiles = new ArrayList<>();
 
     @Column(name = "fixed_study_schedule")
     private String fixedStudySchedule;
@@ -101,4 +103,11 @@ public class Study {
         this.peopleNum = peopleNum;
         this.deadline = deadline;
     }
+
+
+    // -- 파일 연관 관계 메서드 -- //
+    public void addStudyFile(StudyFile studyFile) {
+        this.studyFiles.add(studyFile);
+    }
+
 }

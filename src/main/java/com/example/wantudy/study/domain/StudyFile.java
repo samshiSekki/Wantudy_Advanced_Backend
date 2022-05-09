@@ -1,6 +1,5 @@
 package com.example.wantudy.study.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,10 +26,14 @@ public class StudyFile {
     private Study study;
 
     @Builder
-    public StudyFile(Long studyFileId, String fileName, String filePath, Study study) {
+    public StudyFile(Long studyFileId, String fileName, String filePath) {
         this.studyFileId = studyFileId;
         this.fileName = fileName;
         this.filePath = filePath;
+    }
+
+    // study 정보 저장
+    public void setStudy(Study study){
         this.study = study;
     }
 }

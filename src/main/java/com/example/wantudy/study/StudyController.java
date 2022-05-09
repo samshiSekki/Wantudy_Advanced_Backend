@@ -59,5 +59,4 @@ public class StudyController {
 
         return new ResponseEntity<>(new EntityResponseDto(201,"스터디 등록",study), HttpStatus.CREATED);
     }
-
 }
