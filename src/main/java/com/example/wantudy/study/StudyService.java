@@ -2,6 +2,7 @@ package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.*;
 import com.example.wantudy.study.dto.StudyDetailResponseDto;
+import com.example.wantudy.study.dto.StudyFileDto;
 import com.example.wantudy.study.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ public class StudyService {
     private final DesiredTimeRepository desiredTimeRepository;
     private final StudyDesiredTimeRepository studyDesiredTimeRepository;
 
+    private final StudyFileRepository studyFileRepository;
+
     public Study findByStudyId(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         return study.orElse(null);
@@ -35,12 +38,29 @@ public class StudyService {
     public StudyDetailResponseDto getOneStudy(Study study) {
         StudyDetailResponseDto studyDetailResponseDto = StudyDetailResponseDto.from(study);
 
-        //카테고리, 필수정보, 희망시간 리스트 매칭
+        //카테고리, 필수정보, 희망시간, 파일 리스트 매칭
         studyDetailResponseDto.setCategories(this.getCategory(study));
         studyDetailResponseDto.setDesiredTime(this.getDesiredTime(study));
         studyDetailResponseDto.setRequiredInfo(this.getRequiredInfo(study));
+        studyDetailResponseDto.setStudyFiles(this.getStudyFiles(study));
 
         return studyDetailResponseDto;
+    }
+
+    public List<StudyFileDto> getStudyFiles(Study fileStudy){
+        Optional<Study> study = studyRepository.findById(fileStudy.getStudyId());
+
+        List<StudyFileDto> files = new ArrayList<>();
+        List<StudyFile> studyFiles = studyFileRepository.findByStudy(study.get());
+
+        for(int i=0;i<studyFiles.size(); i++) {
+            StudyFileDto fileDto = new StudyFileDto();
+            fileDto.setStudyFileId(studyFiles.get(i).getStudyFileId());
+            fileDto.setFileName(studyFiles.get(i).getFileName());
+            fileDto.setFilePath(studyFiles.get(i).getFilePath());
+            files.add(fileDto);
+        }
+        return files;
     }
 
     public List<String> getCategory(Study categoryStudy){
@@ -76,6 +96,11 @@ public class StudyService {
         Study createStudy = studyRepository.save(study);
         return createStudy.getStudyId();
     }
+
+//    public Study saveStudyDtoToEntity(StudyCreateDto studyCreateDto){
+//        Study saveStudy = studyCreateDto.toEntity();
+//        return studyRepository.save(saveStudy);
+//    }
 
     public void saveCategory(List<String> categories, Study study){
         for (int i = 0; i < categories.size(); i++){
@@ -129,6 +154,20 @@ public class StudyService {
             studyDesiredTime.setStudy(study);
             studyDesiredTimeRepository.save(studyDesiredTime);
         }
+    }
 
+    // 파일 객체 DB에 저장
+    public void saveStudyFiles(List<String> studyFilePath, List<String> studyFileName,  Study study){
+
+        for (int i = 0; i < studyFilePath.size(); i++){
+            StudyFile studyFile = new StudyFile();
+
+            studyFile.setStudy(study);
+            studyFile.setFilePath(studyFilePath.get(i));
+            studyFile.setFileName(studyFileName.get(i));
+
+            study.addStudyFiles(studyFile);
+            studyFileRepository.save(studyFile);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.wantudy;
+package com.example.wantudy.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
