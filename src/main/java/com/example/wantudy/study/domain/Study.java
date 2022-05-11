@@ -1,5 +1,6 @@
 package com.example.wantudy.study.domain;
 
+import com.example.wantudy.study.dto.StudyCreateDto;
 import com.example.wantudy.users.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;

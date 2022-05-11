@@ -1,9 +1,11 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.*;
+import com.example.wantudy.study.dto.StudyCreateDto;
 import com.example.wantudy.study.dto.StudyDetailResponseDto;
 import com.example.wantudy.study.dto.StudyFileDto;
 import com.example.wantudy.study.repository.*;
+import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,8 @@ public class StudyService {
     private final StudyDesiredTimeRepository studyDesiredTimeRepository;
 
     private final StudyFileRepository studyFileRepository;
+
+    private final AwsS3Service s3Service;
 
     public Study findByStudyId(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
@@ -157,7 +161,7 @@ public class StudyService {
     }
 
     // 파일 객체 DB에 저장
-    public void saveStudyFiles(List<String> studyFilePath, List<String> studyFileName,  Study study){
+    public void saveStudyFiles(List<String> studyFilePath, List<String> studyFileName,  List<String> s3FileName, Study study){
 
         for (int i = 0; i < studyFilePath.size(); i++){
             StudyFile studyFile = new StudyFile();
@@ -165,9 +169,31 @@ public class StudyService {
             studyFile.setStudy(study);
             studyFile.setFilePath(studyFilePath.get(i));
             studyFile.setFileName(studyFileName.get(i));
+            studyFile.setS3FileName(s3FileName.get(i));
 
             study.addStudyFiles(studyFile);
             studyFileRepository.save(studyFile);
         }
     }
+
+    public String downloadFile(long studyFileId) {
+        Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
+        return studyFile.get().getFilePath();
+    }
+
+    public void deleteStudy(long studyId) {
+        Optional<Study> study= studyRepository.findById(studyId);
+        studyRepository.delete(study.get());
+    }
+
+    public void deleteStudyFile(long studyFileId) {
+        Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
+        studyFileRepository.delete(studyFile.get());
+    }
+
+//    public Study updateStudy(StudyCreateDto studyCreateDto, Long studyId) {
+////      Optional<Study> study= studyRepository.findById(studyId);
+//        study.get()set
+//
+//    }
 }

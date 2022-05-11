@@ -11,4 +11,11 @@ public class StudyFileDto {
     private String fileName;
     private String filePath;
 
+    @Getter
+    @AllArgsConstructor
+    public static class downloadFileResponse{
+        private byte[] bytes;
+        private String fileName;
+    }
+
 }

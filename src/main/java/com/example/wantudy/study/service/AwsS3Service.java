@@ -8,25 +8,42 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
+
 import com.amazonaws.util.IOUtils;
+import com.example.wantudy.study.domain.Study;
+import com.example.wantudy.study.domain.StudyFile;
+import com.example.wantudy.study.dto.StudyFileDto;
+import com.example.wantudy.study.dto.StudyFileUploadDto;
+import com.example.wantudy.study.repository.StudyFileRepository;
+import com.example.wantudy.study.repository.StudyRepository;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.UUID;
+import javax.transaction.Transactional;
+import java.io.*;
+import java.net.URLEncoder;
+
+import java.util.*;
 
 
 @Slf4j
 @Service
 @NoArgsConstructor
+@Transactional
 public class AwsS3Service {
 
     private AmazonS3 s3Client;
+
+    @Autowired
+    private StudyRepository studyRepository;
+
+    @Autowired
+    private StudyFileRepository studyFileRepository;
 
     @Value("${cloud.aws.credentials.accessKey}")
     private String accessKey;
@@ -56,11 +73,17 @@ public class AwsS3Service {
      * @param file
      * @return
      */
-    public String upload(MultipartFile file) throws IOException {
+    public StudyFileUploadDto upload(MultipartFile file) throws IOException {
 
         // 고유의 파일명 위해 UUID 사용
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_uuid_" + file.getOriginalFilename();
+
+//        String fileName = file.getOriginalFilename();
+
         try {
+
+//            SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd");
+
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
 
@@ -71,11 +94,20 @@ public class AwsS3Service {
             metadata.setContentLength(bytes.length);
             ByteArrayInputStream byteArrayIs = new ByteArrayInputStream(bytes);
 
+//             업로드 시 버킷에 날짜 폴더 생성하고 거기에 저장
+//            PutObjectRequest putObjReq = new PutObjectRequest(bucket + "/" + date.format(new Date()), fileName, byteArrayIs, metadata);
 
-            PutObjectRequest putObjReq = new PutObjectRequest(bucket, fileName, byteArrayIs, metadata);
+            PutObjectRequest putObjReq = new PutObjectRequest(bucket, fileName, byteArrayIs, metadata).withCannedAcl(CannedAccessControlList.PublicRead);
             s3Client.putObject(putObjReq);
 
-            return s3Client.getUrl(bucket, fileName).toString();
+            String filePath = s3Client.getUrl(bucket, fileName).toString();
+
+            StudyFileUploadDto studyFileUploadDto = new StudyFileUploadDto();
+
+            studyFileUploadDto.setFilepath(filePath);
+            studyFileUploadDto.setS3FileName(fileName);
+
+            return studyFileUploadDto;
 
         } catch (AmazonServiceException e) {
             // The call was transmitted successfully, but Amazon S3 couldn't process
@@ -91,6 +123,36 @@ public class AwsS3Service {
             log.error("uploadToAWS SdkClientException filePath={}, error={}", e.getMessage());
         }
 
-        return "";
+        return null;
+    }
+
+    public StudyFileDto.downloadFileResponse getObject(long studyFileId) throws IOException {
+
+        Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
+        String storedFileName = studyFile.get().getS3FileName();
+
+        S3Object o = s3Client.getObject(new GetObjectRequest(bucket, storedFileName));
+
+        S3ObjectInputStream objectInputStream = ((S3Object) o).getObjectContent();
+        byte[] bytes = IOUtils.toByteArray(objectInputStream);
+
+        String tempFileName = URLEncoder.encode(storedFileName, "UTF-8").replaceAll("\\+", "%20");
+        String[] fileNameSplit = tempFileName.split("_uuid_");
+        String fileName = fileNameSplit[1];
+
+        return new StudyFileDto.downloadFileResponse(bytes, fileName);
+    }
+
+    public void deleteOnlyFile(long studyFileId) {
+        Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
+        String storedFileName = studyFile.get().getS3FileName();
+        s3Client.deleteObject(bucket, storedFileName);
+    }
+
+    public void deleteStudyAndFile(long studyId) {
+        Optional<Study> study = studyRepository.findById(studyId);
+        for (int i=0; i < study.get().getStudyFiles().size(); i++){
+            this.deleteOnlyFile(study.get().getStudyFiles().get(i).getStudyFileId());
+        }
     }
 }
