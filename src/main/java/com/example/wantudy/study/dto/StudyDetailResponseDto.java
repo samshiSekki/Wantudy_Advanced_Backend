@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +30,7 @@ public class StudyDetailResponseDto {
     private Number currentNum;
     private Number likeNum;
 
-    private Date deadline;
+    private LocalDate deadline;
     private LocalDateTime createAt;
 
     private StudyStatus studyStatus;
@@ -37,6 +38,7 @@ public class StudyDetailResponseDto {
     private List<String> categories;
     private List<String> desiredTime;
     private List<String> requiredInfo;
+    private List<StudyFileDto> studyFiles;
 
     //리스트는 따로 받아오기
     public static StudyDetailResponseDto from(Study study){

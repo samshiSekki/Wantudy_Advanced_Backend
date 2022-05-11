@@ -3,11 +3,13 @@ package com.example.wantudy.study.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Setter
+@NoArgsConstructor
 public class StudyFile {
 
     @Id
@@ -26,14 +28,18 @@ public class StudyFile {
     private Study study;
 
     @Builder
-    public StudyFile(Long studyFileId, String fileName, String filePath) {
-        this.studyFileId = studyFileId;
+    public StudyFile(String fileName, String filePath) {
         this.fileName = fileName;
         this.filePath = filePath;
     }
 
+
     // study 정보 저장
     public void setStudy(Study study){
         this.study = study;
+        // study게시글에 현재 파일이 존재하지 않는다면
+        if(!study.getStudyFiles().contains(this))
+            // 파일 추가
+            study.getStudyFiles().add(this);
     }
 }
