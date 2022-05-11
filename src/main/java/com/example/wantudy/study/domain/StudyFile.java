@@ -23,6 +23,9 @@ public class StudyFile {
     @Column(name="file_path")
     private String filePath;
 
+    @Column(name="s3_file_name")
+    private String s3FileName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_Id")
     private Study study;
