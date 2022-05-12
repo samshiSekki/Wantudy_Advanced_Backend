@@ -116,4 +116,15 @@ public class Study {
 //            studyFile.setStudy(this);
     }
 
+    public void updateStudy(StudyCreateDto studyCreateDto){
+        this.studyName = studyCreateDto.getStudyName();
+        this.description = studyCreateDto.getDescription();
+        this.level = studyCreateDto.getLevel();
+        this.format = studyCreateDto.getFormat();
+        this.location = studyCreateDto.getLocation();
+        this.period = studyCreateDto.getPeriod();
+        this.peopleNum = studyCreateDto.getPeopleNum();
+        this.deadline = studyCreateDto.getDeadline();
+    }
+
 }

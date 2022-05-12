@@ -107,6 +107,7 @@ public class StudyService {
 //    }
 
     public void saveCategory(List<String> categories, Study study){
+
         for (int i = 0; i < categories.size(); i++){
             Optional<Category> existedCategory = Optional.ofNullable(categoryRepository.findByCategoryName(categories.get(i)));
             StudyCategory studyCategory = new StudyCategory();
@@ -121,6 +122,32 @@ public class StudyService {
             }
             studyCategory.setStudy(study);
             studyCategoryRepository.save(studyCategory);
+        }
+    }
+
+    //업데이트 시 원래 매핑되어 있던 연관관계 칼럼들 삭제하고 다시 저장
+    public void deleteListForUpdate(long studyId){
+
+        Optional<Study> study = studyRepository.findById(studyId);
+
+        List<StudyCategory> studyCategory = studyCategoryRepository.findByStudy(study.get());
+        List<StudyRequiredInfo> studyRequiredInfo = studyRequiredInfoRepository.findByStudy(study.get());
+        List<StudyDesiredTime> studyDesiredTime = studyDesiredTimeRepository.findByStudy(study.get());
+
+        if(studyCategory != null) {
+            for(int i =0; i< studyCategory.size(); i++){
+                studyCategoryRepository.delete(studyCategory.get(i));
+            }
+        }
+        if(studyRequiredInfo != null){
+            for(int i =0; i< studyRequiredInfo.size(); i++){
+                studyRequiredInfoRepository.delete(studyRequiredInfo.get(i));
+            }
+        }
+        if(studyDesiredTime != null){
+            for(int i =0; i< studyDesiredTime .size(); i++){
+                studyDesiredTimeRepository.delete(studyDesiredTime.get(i));
+            }
         }
     }
 
@@ -166,15 +193,37 @@ public class StudyService {
         for (int i = 0; i < studyFilePath.size(); i++){
             StudyFile studyFile = new StudyFile();
 
+            System.out.println("ddd 1 ");
             studyFile.setStudy(study);
             studyFile.setFilePath(studyFilePath.get(i));
             studyFile.setFileName(studyFileName.get(i));
             studyFile.setS3FileName(s3FileName.get(i));
-
+            System.out.println("ddd 2 ");
             study.addStudyFiles(studyFile);
+            System.out.println(studyFile.getFileName());
             studyFileRepository.save(studyFile);
+            System.out.println(studyFile.getFilePath());
         }
     }
+
+    public void updateStudyFiles(List<String> studyFilePath, List<String> studyFileName,  List<String> s3FileName, long studyId){
+
+        Optional<Study> study = studyRepository.findById(studyId);
+        for (int i = 0; i < studyFilePath.size(); i++){
+            StudyFile studyFile = new StudyFile();
+
+            studyFile.setStudy(study.get());
+            studyFile.setFilePath(studyFilePath.get(i));
+            studyFile.setFileName(studyFileName.get(i));
+            studyFile.setS3FileName(s3FileName.get(i));
+
+            study.get().addStudyFiles(studyFile);
+
+            studyFileRepository.save(studyFile);
+            System.out.println(studyFile.getFilePath());
+        }
+    }
+
 
     public String downloadFile(long studyFileId) {
         Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
@@ -191,9 +240,17 @@ public class StudyService {
         studyFileRepository.delete(studyFile.get());
     }
 
-//    public Study updateStudy(StudyCreateDto studyCreateDto, Long studyId) {
-////      Optional<Study> study= studyRepository.findById(studyId);
-//        study.get()set
-//
-//    }
+    public void updateStudy(Long studyId, StudyCreateDto studyCreateDto) {
+      Optional<Study> study= studyRepository.findById(studyId);
+      study.get().updateStudy(studyCreateDto);
+    }
+
+    public void deleteStudyFileForupdate(long studyId) {
+        Optional<Study> study = studyRepository.findById(studyId);
+        List<StudyFile> studyFile = studyFileRepository.findByStudy(study.get());
+
+        for(int i=0; i<studyFile.size(); i++){
+            studyFileRepository.delete(studyFile.get(i));
+        }
+    }
 }
