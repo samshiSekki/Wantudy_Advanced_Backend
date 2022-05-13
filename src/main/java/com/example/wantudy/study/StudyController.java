@@ -1,10 +1,7 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.Study;
-import com.example.wantudy.study.dto.EntityResponseDto;
-import com.example.wantudy.study.dto.StudyDetailResponseDto;
-import com.example.wantudy.study.dto.StudyCreateDto;
-import com.example.wantudy.study.dto.StudyFileUploadDto;
+import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +22,14 @@ public class StudyController {
 
     private final StudyService studyService;
     private final AwsS3Service s3Service;
+
+    @GetMapping("")
+    public EntityResponseDto getAllStudy(){
+
+        List<StudyAllResponseDto> responseData = studyService.getAllStudy();
+        return new EntityResponseDto(200, "스터디 전체 조회", responseData);
+
+    }
 
     @GetMapping("/{studyId}")
     public EntityResponseDto getOneStudy(@PathVariable("studyId") long studyId) {
@@ -87,42 +92,6 @@ public class StudyController {
         return new EntityResponseDto(201, "스터디 등록", studyDetailResponseDto);
     }
 
-//    @PatchMapping("/{studyId}")
-//    public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @RequestBody StudyCreateDto studyCreateDto) {
-//
-//        studyService.updateStudy(studyId, studyCreateDto);
-//
-//        List<String> categories = new ArrayList<>();
-//        List<String> requiredInfoList = new ArrayList<>();
-//        List<String> desiredTimeList = new ArrayList<>();
-//
-//        for (int i = 0; i < studyCreateDto.getCategories().size(); i++) {
-//            String category = studyCreateDto.getCategories().get(i);
-//            categories.add(category);
-//        }
-//
-//        for (int i = 0; i < studyCreateDto.getRequiredInfo().size(); i++) {
-//            String requiredInfo = studyCreateDto.getRequiredInfo().get(i);
-//            requiredInfoList.add(requiredInfo);
-//        }
-//
-//        for (int i = 0; i < studyCreateDto.getDesiredTime().size(); i++) {
-//            String desiredTime = studyCreateDto.getDesiredTime().get(i);
-//            desiredTimeList.add(desiredTime);
-//        }
-//
-//        studyService.deleteListForUpdate(studyId);
-//
-//        Study study = studyService.findByStudyId(studyId);
-//
-//        studyService.saveCategory(categories, study);
-//        studyService.saveRequiredInfo(requiredInfoList,study);
-//        studyService.saveDesiredTime(desiredTimeList,study);
-//
-//        StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
-//
-//        return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
-//    }
 
     @PatchMapping("/{studyId}")
     public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @RequestPart(value="studyCreateDto") StudyCreateDto studyCreateDto,

@@ -1,6 +1,7 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.*;
+import com.example.wantudy.study.dto.StudyAllResponseDto;
 import com.example.wantudy.study.dto.StudyCreateDto;
 import com.example.wantudy.study.dto.StudyDetailResponseDto;
 import com.example.wantudy.study.dto.StudyFileDto;
@@ -34,9 +35,28 @@ public class StudyService {
 
     private final AwsS3Service s3Service;
 
+//    public List<Study> findAllStudy() {
+//        return studyRepository.findAll();
+//    }
+
     public Study findByStudyId(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         return study.orElse(null);
+    }
+
+    public List<StudyAllResponseDto> getAllStudy() {
+
+        List<Study> studies = studyRepository.findAll();
+
+        List<StudyAllResponseDto> ResponseDto = new ArrayList<>();
+
+        for(int i=0; i<studies.size(); i++){
+            StudyAllResponseDto studyAllResponseDto = StudyAllResponseDto.from(studies.get(i));
+            studyAllResponseDto.setCategories(this.getCategory(studies.get(i)));
+            ResponseDto.add(studyAllResponseDto);
+        }
+
+        return ResponseDto;
     }
 
     public StudyDetailResponseDto getOneStudy(Study study) {
@@ -253,4 +273,5 @@ public class StudyService {
             studyFileRepository.delete(studyFile.get(i));
         }
     }
+
 }
