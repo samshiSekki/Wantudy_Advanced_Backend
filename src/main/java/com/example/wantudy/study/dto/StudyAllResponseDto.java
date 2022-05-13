@@ -1,6 +1,6 @@
 package com.example.wantudy.study.dto;
 
-import com.example.wantudy.study.domain.Study;
+import com.example.wantudy.study.Study;
 import com.example.wantudy.study.domain.StudyStatus;
 import lombok.Builder;
 import lombok.Getter;

@@ -213,16 +213,14 @@ public class StudyService {
         for (int i = 0; i < studyFilePath.size(); i++){
             StudyFile studyFile = new StudyFile();
 
-            System.out.println("ddd 1 ");
             studyFile.setStudy(study);
             studyFile.setFilePath(studyFilePath.get(i));
             studyFile.setFileName(studyFileName.get(i));
             studyFile.setS3FileName(s3FileName.get(i));
-            System.out.println("ddd 2 ");
+
             study.addStudyFiles(studyFile);
-            System.out.println(studyFile.getFileName());
             studyFileRepository.save(studyFile);
-            System.out.println(studyFile.getFilePath());
+
         }
     }
 

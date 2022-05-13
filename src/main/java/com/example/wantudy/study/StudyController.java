@@ -1,13 +1,15 @@
 package com.example.wantudy.study;
 
-import com.example.wantudy.study.domain.Study;
 import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,19 +52,20 @@ public class StudyController {
                 studyCreateDto.getFormat(), studyCreateDto.getLocation(), studyCreateDto.getPeriod(), studyCreateDto.getPeopleNum(),
                 studyCreateDto.getDeadline()); // DTO에서 리스트 제외한 필드 가져와서 스터디 객체 만듦
 
-        //파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
-        for (int i = 0; i < multipartFile.size(); i++) {
+        if(!multipartFile.get(0).isEmpty()) {
+            //파일이 존재한다면 파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
+            for (int i = 0; i < multipartFile.size(); i++) {
 
-            StudyFileUploadDto studyFileUploadDto = s3Service.upload(multipartFile.get(i));
-            String fileName = multipartFile.get(i).getOriginalFilename();
+                StudyFileUploadDto studyFileUploadDto = s3Service.upload(multipartFile.get(i));
+                String fileName = multipartFile.get(i).getOriginalFilename();
 
-            List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
-            List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
-            List<String> studyFileName = List.of(fileName);
+                List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
+                List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
+                List<String> studyFileName = List.of(fileName);
 
-            studyService.saveStudy(study);
-
-            studyService.saveStudyFiles(studyFilePath, studyFileName, s3FileName, study);
+                studyService.saveStudy(study);
+                studyService.saveStudyFiles(studyFilePath, studyFileName, s3FileName, study);
+            }
         }
 
         //DTO에서 리스트 정보 값 가져와서 차례대로 넣어주기
