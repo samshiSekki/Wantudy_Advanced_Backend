@@ -141,7 +141,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.tokenProvider = tokenProvider;
     }
 
-    //AuthenticationManagerBean 등록 -> 하단의 configure에서 LoginForm을 이용한 자동 처리 사용 X, 수동으로 Authentication을 만들어서 SecurityContext에 저장!
+    //AuthenticationManagerBean 등록 -> 하단의 configure에서 LoginForm을 이용한 자동 처리 사용 X, 수동으로 Authentication을 만들어서 SecurityContext에 저장
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean()  throws Exception{

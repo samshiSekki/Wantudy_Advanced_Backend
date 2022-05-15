@@ -1,15 +1,13 @@
 package com.example.wantudy.oauth;
 
 import com.example.wantudy.jwt.AuthResponse;
-import com.example.wantudy.jwt.ResponseMessage;
+import com.example.wantudy.common.ResponseMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Controller
 @RequiredArgsConstructor

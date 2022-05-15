@@ -1,4 +1,4 @@
-package com.example.wantudy.jwt;
+package com.example.wantudy.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

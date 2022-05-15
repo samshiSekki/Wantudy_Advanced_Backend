@@ -1,13 +1,10 @@
 package com.example.wantudy.oauth;
 
 import com.example.wantudy.jwt.AuthResponse;
-import com.example.wantudy.jwt.ResponseMessage;
 import com.example.wantudy.jwt.TokenProvider;
 import com.example.wantudy.oauth.userInfo.KakaoUserInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,8 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional
