@@ -1,9 +1,9 @@
 package com.example.wantudy.study.domain;
 
+import com.example.wantudy.study.Study;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
 
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -20,7 +20,7 @@ public class StudyFile {
     @Column(name="file_name")
     private String fileName;
 
-    @Column(name="file_path")
+    @Column(name="file_path", length = 1000)
     private String filePath;
 
     @Column(name="s3_file_name")

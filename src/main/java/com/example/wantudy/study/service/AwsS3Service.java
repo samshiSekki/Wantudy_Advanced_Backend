@@ -5,22 +5,28 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.codedeploy.model.ErrorCode;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 
 import com.amazonaws.util.IOUtils;
-import com.example.wantudy.study.domain.Study;
+import com.example.wantudy.study.Study;
 import com.example.wantudy.study.domain.StudyFile;
 import com.example.wantudy.study.dto.StudyFileDto;
 import com.example.wantudy.study.dto.StudyFileUploadDto;
 import com.example.wantudy.study.repository.StudyFileRepository;
 import com.example.wantudy.study.repository.StudyRepository;
+import com.nimbusds.oauth2.sdk.ErrorResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
@@ -77,8 +83,6 @@ public class AwsS3Service {
 
         // 고유의 파일명 위해 UUID 사용
         String fileName = UUID.randomUUID() + "_uuid_" + file.getOriginalFilename();
-
-//        String fileName = file.getOriginalFilename();
 
         try {
 

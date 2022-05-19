@@ -1,6 +1,6 @@
 package com.example.wantudy.study.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.wantudy.study.Study;
 import lombok.*;
 
 import javax.persistence.*;

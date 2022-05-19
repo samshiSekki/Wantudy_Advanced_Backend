@@ -1,12 +1,15 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.*;
+import com.example.wantudy.study.dto.StudyAllResponseDto;
 import com.example.wantudy.study.dto.StudyCreateDto;
 import com.example.wantudy.study.dto.StudyDetailResponseDto;
 import com.example.wantudy.study.dto.StudyFileDto;
 import com.example.wantudy.study.repository.*;
 import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -34,10 +37,27 @@ public class StudyService {
 
     private final AwsS3Service s3Service;
 
+
     public Study findByStudyId(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         return study.orElse(null);
     }
+
+
+    public Page<StudyAllResponseDto> getAllStudy(Pageable pageable) {
+        Page<Study> studies = studyRepository.findAll(pageable);
+
+        //DTO로 변환
+        Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
+
+        //카테고리 리스트 채워주기
+        for (int i = 0; i < studies.getContent().size(); i++) {
+            pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
+        }
+
+        return pageDto;
+    }
+
 
     public StudyDetailResponseDto getOneStudy(Study study) {
         StudyDetailResponseDto studyDetailResponseDto = StudyDetailResponseDto.from(study);
@@ -193,16 +213,14 @@ public class StudyService {
         for (int i = 0; i < studyFilePath.size(); i++){
             StudyFile studyFile = new StudyFile();
 
-            System.out.println("ddd 1 ");
             studyFile.setStudy(study);
             studyFile.setFilePath(studyFilePath.get(i));
             studyFile.setFileName(studyFileName.get(i));
             studyFile.setS3FileName(s3FileName.get(i));
-            System.out.println("ddd 2 ");
+
             study.addStudyFiles(studyFile);
-            System.out.println(studyFile.getFileName());
             studyFileRepository.save(studyFile);
-            System.out.println(studyFile.getFilePath());
+
         }
     }
 
@@ -253,4 +271,5 @@ public class StudyService {
             studyFileRepository.delete(studyFile.get(i));
         }
     }
+
 }
