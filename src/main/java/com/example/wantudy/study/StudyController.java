@@ -2,9 +2,13 @@ package com.example.wantudy.study;
 
 import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.service.AwsS3Service;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;;
-import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,24 +29,24 @@ public class StudyController {
     private final StudyService studyService;
     private final AwsS3Service s3Service;
 
+    @ApiOperation("스터디 전체 조회")
     @GetMapping("")
-    public EntityResponseDto getAllStudy(){
-
-        List<StudyAllResponseDto> responseData = studyService.getAllStudy();
-        return new EntityResponseDto(200, "스터디 전체 조회", responseData);
-
+    public Page<StudyAllResponseDto> getAllStudy(@PageableDefault(size=5, sort="createAt", direction = Sort.Direction.DESC) Pageable pageable){
+        Page<StudyAllResponseDto> responseData = studyService.getAllStudy(pageable);
+        return responseData;
     }
 
+    @ApiOperation("스터디 상세 조회")
     @GetMapping("/{studyId}")
-    public EntityResponseDto getOneStudy(@PathVariable("studyId") long studyId) {
+    public EntityResponseDto getOneStudy(@ApiParam(value="스터디 ID", required = true) @PathVariable("studyId") long studyId) {
 
         Study study = studyService.findByStudyId(studyId);
         StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
 
         return new EntityResponseDto(200, "스터디 상세 페이지 조회", studyDetailResponseDto);
-
     }
 
+    @ApiOperation("스터디 개설")
     @PostMapping("")
     public EntityResponseDto createStudy(
             @RequestPart(value = "studyCreateDto") StudyCreateDto studyCreateDto,
@@ -52,7 +56,7 @@ public class StudyController {
                 studyCreateDto.getFormat(), studyCreateDto.getLocation(), studyCreateDto.getPeriod(), studyCreateDto.getPeopleNum(),
                 studyCreateDto.getDeadline()); // DTO에서 리스트 제외한 필드 가져와서 스터디 객체 만듦
 
-        if(!multipartFile.get(0).isEmpty()) {
+        if(!CollectionUtils.isEmpty(multipartFile)) {
             //파일이 존재한다면 파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
             for (int i = 0; i < multipartFile.size(); i++) {
 
@@ -96,6 +100,7 @@ public class StudyController {
     }
 
 
+    @ApiOperation("스터디 수정")
     @PatchMapping("/{studyId}")
     public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @RequestPart(value="studyCreateDto") StudyCreateDto studyCreateDto,
                                          @RequestPart(value="file") List<MultipartFile> multipartFile) throws IOException {
@@ -155,6 +160,7 @@ public class StudyController {
 
 
 
+    @ApiOperation("스터디 삭제")
     @DeleteMapping("/{studyId}")
     public EntityResponseDto.messageResponse deleteStudy(@PathVariable("studyId") long studyId) {
 
@@ -164,6 +170,7 @@ public class StudyController {
         return new EntityResponseDto.messageResponse(204, "스터디 삭제 완료");
     }
 
+    @ApiOperation("스터디 파일 다운로드")
     @GetMapping("/file/{studyFileId}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable("studyFileId") long studyFileId) throws IOException {
 
@@ -178,6 +185,7 @@ public class StudyController {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
+    @ApiOperation("스터디 파일 삭제")
     @DeleteMapping("/file/{studyFileId}")
     public EntityResponseDto.messageResponse deleteFile(@PathVariable("studyFileId") long studyFileId) {
         s3Service.deleteOnlyFile(studyFileId);

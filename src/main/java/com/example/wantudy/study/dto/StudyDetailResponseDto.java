@@ -2,6 +2,7 @@ package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
 import com.example.wantudy.study.domain.StudyStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +30,10 @@ public class StudyDetailResponseDto {
     private Number currentNum;
     private Number likeNum;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate deadline;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createAt;
 
     private StudyStatus studyStatus;

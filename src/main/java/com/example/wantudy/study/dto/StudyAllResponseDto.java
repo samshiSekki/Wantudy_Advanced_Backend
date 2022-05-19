@@ -2,6 +2,7 @@ package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
 import com.example.wantudy.study.domain.StudyStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,11 +28,15 @@ public class StudyAllResponseDto {
     private Number currentNum;
     private Number likeNum;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate deadline;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createAt;
 
     private StudyStatus studyStatus;
 
+    //전체 페이지에서 조회할 때는 희망시간, 필수요청 정보는 안 나오니까 카테고리만 추가해줌
     private List<String> categories;
 
     //리스트는 따로 받아오기
@@ -51,6 +56,4 @@ public class StudyAllResponseDto {
                     .studyStatus(study.getStudyStatus())
                     .build();
         }
-
-
 }

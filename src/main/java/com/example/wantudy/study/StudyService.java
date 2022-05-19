@@ -8,6 +8,8 @@ import com.example.wantudy.study.dto.StudyFileDto;
 import com.example.wantudy.study.repository.*;
 import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -35,29 +37,27 @@ public class StudyService {
 
     private final AwsS3Service s3Service;
 
-//    public List<Study> findAllStudy() {
-//        return studyRepository.findAll();
-//    }
 
     public Study findByStudyId(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         return study.orElse(null);
     }
 
-    public List<StudyAllResponseDto> getAllStudy() {
 
-        List<Study> studies = studyRepository.findAll();
+    public Page<StudyAllResponseDto> getAllStudy(Pageable pageable) {
+        Page<Study> studies = studyRepository.findAll(pageable);
 
-        List<StudyAllResponseDto> ResponseDto = new ArrayList<>();
+        //DTO로 변환
+        Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
 
-        for(int i=0; i<studies.size(); i++){
-            StudyAllResponseDto studyAllResponseDto = StudyAllResponseDto.from(studies.get(i));
-            studyAllResponseDto.setCategories(this.getCategory(studies.get(i)));
-            ResponseDto.add(studyAllResponseDto);
+        //카테고리 리스트 채워주기
+        for (int i = 0; i < studies.getContent().size(); i++) {
+            pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
         }
 
-        return ResponseDto;
+        return pageDto;
     }
+
 
     public StudyDetailResponseDto getOneStudy(Study study) {
         StudyDetailResponseDto studyDetailResponseDto = StudyDetailResponseDto.from(study);
