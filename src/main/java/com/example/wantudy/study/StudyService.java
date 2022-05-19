@@ -10,6 +10,7 @@ import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
@@ -46,6 +47,20 @@ public class StudyService {
 
     public Page<StudyAllResponseDto> getAllStudy(Pageable pageable) {
         Page<Study> studies = studyRepository.findAll(pageable);
+
+        //DTO로 변환
+        Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
+
+        //카테고리 리스트 채워주기
+        for (int i = 0; i < studies.getContent().size(); i++) {
+            pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
+        }
+
+        return pageDto;
+    }
+
+    public Page<StudyAllResponseDto> getStudySearch(Specification<Study> filter, Pageable pageable) {
+        Page<Study> studies = studyRepository.findAll(filter, pageable);
 
         //DTO로 변환
         Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
@@ -271,5 +286,4 @@ public class StudyService {
             studyFileRepository.delete(studyFile.get(i));
         }
     }
-
 }

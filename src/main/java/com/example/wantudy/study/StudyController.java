@@ -1,6 +1,7 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.dto.*;
+import com.example.wantudy.study.repository.StudySpec;
 import com.example.wantudy.study.service.AwsS3Service;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,24 @@ public class StudyController {
     @GetMapping("")
     public Page<StudyAllResponseDto> getAllStudy(@PageableDefault(size=5, sort="createAt", direction = Sort.Direction.DESC) Pageable pageable){
         Page<StudyAllResponseDto> responseData = studyService.getAllStudy(pageable);
+        return responseData;
+    }
+
+    @ApiOperation("스터디 검색 조회")
+    @GetMapping("/search")
+    public Page<StudyAllResponseDto> search(@RequestParam(required = false) String studyName,
+                                          @RequestParam(required = false) String location,
+                                          @PageableDefault(size=5, sort="createAt", direction = Sort.Direction.DESC) Pageable pageable){
+        Specification<Study> spec = (root, query, criteriaBuilder) -> null;
+
+        if(studyName != null){
+            spec = spec.and(StudySpec.likeStudyName(studyName));
+        }
+        if(location != null){
+            spec = spec.and(StudySpec.likeLocation(location));
+        }
+
+        Page<StudyAllResponseDto> responseData = studyService.getStudySearch(spec, pageable);
         return responseData;
     }
 
