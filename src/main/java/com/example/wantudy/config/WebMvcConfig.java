@@ -61,7 +61,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         @ApiModelProperty(value = " 페이지 번호 (0..N)")
         private Integer page;
 
-        @ApiModelProperty(value = "정렬 기준 컬럼", example = "createAt,DESC")
+        @ApiModelProperty(value = "정렬 기준 (createAt,desc - 최신순, remainNum,asc|desc -남은 인원 순, likeNum -찜순, deadline - 마감순)", example = "createAt,DESC")
         private String sort;
     }
 

@@ -132,6 +132,7 @@ public class StudyService {
     }
 
     public long saveStudy(Study study){
+        study.setRemainNum(study.getPeopleNum().intValue() - study.getCurrentNum().intValue());
         Study createStudy = studyRepository.save(study);
         return createStudy.getStudyId();
     }
@@ -275,10 +276,11 @@ public class StudyService {
 
     public void updateStudy(Long studyId, StudyCreateDto studyCreateDto) {
       Optional<Study> study= studyRepository.findById(studyId);
+      study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
       study.get().updateStudy(studyCreateDto);
     }
 
-    public void deleteStudyFileForupdate(long studyId) {
+    public void deleteStudyFileForUpdate(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         List<StudyFile> studyFile = studyFileRepository.findByStudy(study.get());
 

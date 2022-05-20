@@ -26,6 +26,7 @@ public class StudyAllResponseDto {
 
     private Number peopleNum;
     private Number currentNum;
+    private Number remainNum;
     private Number likeNum;
 
     @JsonFormat(pattern="yyyy-MM-dd")
@@ -50,6 +51,7 @@ public class StudyAllResponseDto {
                     .period(study.getPeriod())
                     .peopleNum(study.getPeopleNum())
                     .currentNum(study.getCurrentNum())
+                    .remainNum(study.getRemainNum())
                     .likeNum(study.getLikeNum())
                     .deadline(study.getDeadline())
                     .createAt(study.getCreateAt())
