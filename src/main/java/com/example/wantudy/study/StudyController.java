@@ -1,6 +1,8 @@
 package com.example.wantudy.study;
 
+import com.example.wantudy.study.domain.StudyStatus;
 import com.example.wantudy.study.dto.*;
+import com.example.wantudy.study.repository.StudySpec;
 import com.example.wantudy.study.service.AwsS3Service;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @RestController
 @RequestMapping("/api/study")
 @RequiredArgsConstructor
@@ -31,9 +36,38 @@ public class StudyController {
 
     @ApiOperation("스터디 전체 조회")
     @GetMapping("")
-    public Page<StudyAllResponseDto> getAllStudy(@PageableDefault(size=5, sort="createAt", direction = Sort.Direction.DESC) Pageable pageable){
+    public EntityResponseDto getAllStudy(@PageableDefault(size=5, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable){
+
         Page<StudyAllResponseDto> responseData = studyService.getAllStudy(pageable);
-        return responseData;
+        if(!CollectionUtils.isEmpty(responseData.getContent()))
+            return new EntityResponseDto(200, "스터디 조회 성공", responseData);
+
+        return new EntityResponseDto(404, "페이지가 없습니다.", null);
+    }
+
+    @ApiOperation("스터디 조건 조회")
+    @GetMapping("/filter")
+    public EntityResponseDto search(@RequestParam(required = false) String studyName, @RequestParam(required = false) String location,
+                                            @RequestParam(required = false, name = "status") StudyStatus status,
+                                          @PageableDefault(size=5, sort="createAt", direction = DESC) Pageable pageable){
+        Specification<Study> spec = (root, query, criteriaBuilder) -> null;
+
+        if(studyName != null){
+            spec = spec.and(StudySpec.likeStudyName(studyName));
+        }
+        if(location != null){
+            spec = spec.and(StudySpec.likeLocation(location));
+        }
+        if(status != null){
+            spec = spec.and(StudySpec.equalStatus(status));
+        }
+
+        Page<StudyAllResponseDto> responseData = studyService.getStudySearch(spec, pageable);
+
+        if(!CollectionUtils.isEmpty(responseData.getContent()))
+            return new EntityResponseDto(200, "스터디 조건 조회 성공", responseData);
+
+        return new EntityResponseDto(404, "페이지가 없습니다.", null);
     }
 
     @ApiOperation("스터디 상세 조회")
@@ -105,7 +139,6 @@ public class StudyController {
     public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @RequestPart(value="studyCreateDto") StudyCreateDto studyCreateDto,
                                          @RequestPart(value="file") List<MultipartFile> multipartFile) throws IOException {
 
-
         studyService.updateStudy(studyId, studyCreateDto);
 
         List<String> categories = new ArrayList<>();
@@ -131,7 +164,7 @@ public class StudyController {
         s3Service.deleteStudyAndFile(studyId);
 
         //DB에서 파일과 연관관계 리스트 삭제
-        studyService.deleteStudyFileForupdate(studyId);
+        studyService.deleteStudyFileForUpdate(studyId);
         studyService.deleteListForUpdate(studyId);
 
         Study study = studyService.findByStudyId(studyId);

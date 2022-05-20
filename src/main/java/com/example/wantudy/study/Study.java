@@ -70,6 +70,9 @@ public class Study {
     @Column(name = "current_num")
     private Number currentNum;
 
+    @Column(name="remain_num")
+    private Number remainNum;
+
     @Column(name = "deadline")
     private LocalDate deadline;
 

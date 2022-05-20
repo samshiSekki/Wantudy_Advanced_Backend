@@ -10,6 +10,7 @@ import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
@@ -46,6 +47,20 @@ public class StudyService {
 
     public Page<StudyAllResponseDto> getAllStudy(Pageable pageable) {
         Page<Study> studies = studyRepository.findAll(pageable);
+
+        //DTO로 변환
+        Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
+
+        //카테고리 리스트 채워주기
+        for (int i = 0; i < studies.getContent().size(); i++) {
+            pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
+        }
+
+        return pageDto;
+    }
+
+    public Page<StudyAllResponseDto> getStudySearch(Specification<Study> filter, Pageable pageable) {
+        Page<Study> studies = studyRepository.findAll(filter, pageable);
 
         //DTO로 변환
         Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
@@ -117,6 +132,7 @@ public class StudyService {
     }
 
     public long saveStudy(Study study){
+        study.setRemainNum(study.getPeopleNum().intValue() - study.getCurrentNum().intValue());
         Study createStudy = studyRepository.save(study);
         return createStudy.getStudyId();
     }
@@ -260,10 +276,11 @@ public class StudyService {
 
     public void updateStudy(Long studyId, StudyCreateDto studyCreateDto) {
       Optional<Study> study= studyRepository.findById(studyId);
+      study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
       study.get().updateStudy(studyCreateDto);
     }
 
-    public void deleteStudyFileForupdate(long studyId) {
+    public void deleteStudyFileForUpdate(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         List<StudyFile> studyFile = studyFileRepository.findByStudy(study.get());
 
@@ -271,5 +288,4 @@ public class StudyService {
             studyFileRepository.delete(studyFile.get(i));
         }
     }
-
 }
