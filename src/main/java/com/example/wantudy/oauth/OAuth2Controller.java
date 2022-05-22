@@ -14,16 +14,21 @@ import org.springframework.web.bind.annotation.*;
 public class OAuth2Controller {
     private final UserDetailsServiceImpl userDetailsService;
 
+    @GetMapping("/")
+    public String index(){
+        return "main";
+    }
+
+
     @GetMapping("/oauth/callback/kakao")
     public ResponseEntity<ResponseMessage> oauth2AuthorizationKakao(@RequestParam("code") String code) throws JsonProcessingException {
         AuthResponse authResponse = userDetailsService.oauth2AuthorizationKakao(code);
         return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse), HttpStatus.OK);
     }
-
-//    @GetMapping("/login/oauth2/code/google")
-//    public void oauth2AuthorizationGoogle(@RequestParam("code") String code) throws JsonProcessingException {
-//        AuthResponse authResponse = userDetailsService.oauth2AuthorizationGoogle(code);
-//    }
-
-
+//    http://localhost:8080/login/oauth2/code/google
+    @GetMapping("/login/oauth2/code/google")
+    public ResponseEntity<ResponseMessage> oauth2AuthorizationGoogle(@RequestParam("code") String code) throws JsonProcessingException {
+        AuthResponse authResponse = userDetailsService.oauth2AuthorizationGoogle(code);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse), HttpStatus.OK);
+    }
 }

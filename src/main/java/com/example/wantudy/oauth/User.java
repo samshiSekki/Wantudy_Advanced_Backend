@@ -50,11 +50,10 @@ public class User {
     }
 
     @Builder
-    public User(String email, String password, String profileImage, String nickname, ProviderType providerType) {
+    public User(String email, String password, String profileImage, String nickname) {
         this.email = email;
         this.password = password;
         this.profileImage = profileImage;
         this.nickname = nickname;
-        this.providerType = providerType;
     }
 }
