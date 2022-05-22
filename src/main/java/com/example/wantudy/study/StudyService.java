@@ -132,8 +132,8 @@ public class StudyService {
     }
 
     public long saveStudy(Study study){
-        study.setRemainNum(study.getPeopleNum().intValue() - study.getCurrentNum().intValue());
         Study createStudy = studyRepository.save(study);
+        study.setRemainNum(study.getPeopleNum().intValue() - study.getCurrentNum().intValue());
         return createStudy.getStudyId();
     }
 

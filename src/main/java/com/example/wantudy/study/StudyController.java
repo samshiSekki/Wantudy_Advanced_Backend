@@ -38,9 +38,17 @@ public class StudyController {
     @GetMapping("")
     public EntityResponseDto getAllStudy(@PageableDefault(size=5, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable){
 
-        Page<StudyAllResponseDto> responseData = studyService.getAllStudy(pageable);
+        Specification<Study> spec = (root, query, criteriaBuilder) -> null;
+
+        StudyStatus status = StudyStatus.RECRUIT;
+        spec = spec.and(StudySpec.equalStatus(status));
+
+//        Page<StudyAllResponseDto> responseData = studyService.getAllStudy(pageable);
+
+        //모집중인 스터디만 뜨기
+        Page<StudyAllResponseDto> responseData = studyService.getStudySearch(spec, pageable);
         if(!CollectionUtils.isEmpty(responseData.getContent()))
-            return new EntityResponseDto(200, "스터디 조회 성공", responseData);
+            return new EntityResponseDto(200, "스터디 조회 성공(모집중인 스터디만 조회)", responseData);
 
         return new EntityResponseDto(404, "페이지가 없습니다.", null);
     }
