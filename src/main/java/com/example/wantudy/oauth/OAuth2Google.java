@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
+@PropertySource(value = "application-oauth.properties")
 public class OAuth2Google {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
