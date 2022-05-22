@@ -1,5 +1,6 @@
 package com.example.wantudy.study.domain;
 
+import com.example.wantudy.study.Study;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,14 +11,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(
-        name="study_category",
-        uniqueConstraints={
-                @UniqueConstraint(
-                        columnNames={"study_id","category_id"}
-                )
-        }
-)
+@Table
 public class StudyCategory {
 
     @Id
@@ -40,4 +34,5 @@ public class StudyCategory {
 //        study.getCategories().add(this);
 //        category.getStudies().add(this);
 //    }
+
 }

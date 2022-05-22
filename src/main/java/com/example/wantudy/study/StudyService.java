@@ -1,9 +1,16 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.*;
+import com.example.wantudy.study.dto.StudyAllResponseDto;
+import com.example.wantudy.study.dto.StudyCreateDto;
 import com.example.wantudy.study.dto.StudyDetailResponseDto;
+import com.example.wantudy.study.dto.StudyFileDto;
 import com.example.wantudy.study.repository.*;
+import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
@@ -27,20 +34,72 @@ public class StudyService {
     private final DesiredTimeRepository desiredTimeRepository;
     private final StudyDesiredTimeRepository studyDesiredTimeRepository;
 
+    private final StudyFileRepository studyFileRepository;
+
+    private final AwsS3Service s3Service;
+
+
     public Study findByStudyId(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         return study.orElse(null);
     }
 
+
+    public Page<StudyAllResponseDto> getAllStudy(Pageable pageable) {
+        Page<Study> studies = studyRepository.findAll(pageable);
+
+        //DTO로 변환
+        Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
+
+        //카테고리 리스트 채워주기
+        for (int i = 0; i < studies.getContent().size(); i++) {
+            pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
+        }
+
+        return pageDto;
+    }
+
+    public Page<StudyAllResponseDto> getStudySearch(Specification<Study> filter, Pageable pageable) {
+        Page<Study> studies = studyRepository.findAll(filter, pageable);
+
+        //DTO로 변환
+        Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
+
+        //카테고리 리스트 채워주기
+        for (int i = 0; i < studies.getContent().size(); i++) {
+            pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
+        }
+
+        return pageDto;
+    }
+
+
     public StudyDetailResponseDto getOneStudy(Study study) {
         StudyDetailResponseDto studyDetailResponseDto = StudyDetailResponseDto.from(study);
 
-        //카테고리, 필수정보, 희망시간 리스트 매칭
+        //카테고리, 필수정보, 희망시간, 파일 리스트 매칭
         studyDetailResponseDto.setCategories(this.getCategory(study));
         studyDetailResponseDto.setDesiredTime(this.getDesiredTime(study));
         studyDetailResponseDto.setRequiredInfo(this.getRequiredInfo(study));
+        studyDetailResponseDto.setStudyFiles(this.getStudyFiles(study));
 
         return studyDetailResponseDto;
+    }
+
+    public List<StudyFileDto> getStudyFiles(Study fileStudy){
+        Optional<Study> study = studyRepository.findById(fileStudy.getStudyId());
+
+        List<StudyFileDto> files = new ArrayList<>();
+        List<StudyFile> studyFiles = studyFileRepository.findByStudy(study.get());
+
+        for(int i=0;i<studyFiles.size(); i++) {
+            StudyFileDto fileDto = new StudyFileDto();
+            fileDto.setStudyFileId(studyFiles.get(i).getStudyFileId());
+            fileDto.setFileName(studyFiles.get(i).getFileName());
+            fileDto.setFilePath(studyFiles.get(i).getFilePath());
+            files.add(fileDto);
+        }
+        return files;
     }
 
     public List<String> getCategory(Study categoryStudy){
@@ -74,10 +133,17 @@ public class StudyService {
 
     public long saveStudy(Study study){
         Study createStudy = studyRepository.save(study);
+        study.setRemainNum(study.getPeopleNum().intValue() - study.getCurrentNum().intValue());
         return createStudy.getStudyId();
     }
 
+//    public Study saveStudyDtoToEntity(StudyCreateDto studyCreateDto){
+//        Study saveStudy = studyCreateDto.toEntity();
+//        return studyRepository.save(saveStudy);
+//    }
+
     public void saveCategory(List<String> categories, Study study){
+
         for (int i = 0; i < categories.size(); i++){
             Optional<Category> existedCategory = Optional.ofNullable(categoryRepository.findByCategoryName(categories.get(i)));
             StudyCategory studyCategory = new StudyCategory();
@@ -92,6 +158,32 @@ public class StudyService {
             }
             studyCategory.setStudy(study);
             studyCategoryRepository.save(studyCategory);
+        }
+    }
+
+    //업데이트 시 원래 매핑되어 있던 연관관계 칼럼들 삭제하고 다시 저장
+    public void deleteListForUpdate(long studyId){
+
+        Optional<Study> study = studyRepository.findById(studyId);
+
+        List<StudyCategory> studyCategory = studyCategoryRepository.findByStudy(study.get());
+        List<StudyRequiredInfo> studyRequiredInfo = studyRequiredInfoRepository.findByStudy(study.get());
+        List<StudyDesiredTime> studyDesiredTime = studyDesiredTimeRepository.findByStudy(study.get());
+
+        if(studyCategory != null) {
+            for(int i =0; i< studyCategory.size(); i++){
+                studyCategoryRepository.delete(studyCategory.get(i));
+            }
+        }
+        if(studyRequiredInfo != null){
+            for(int i =0; i< studyRequiredInfo.size(); i++){
+                studyRequiredInfoRepository.delete(studyRequiredInfo.get(i));
+            }
+        }
+        if(studyDesiredTime != null){
+            for(int i =0; i< studyDesiredTime .size(); i++){
+                studyDesiredTimeRepository.delete(studyDesiredTime.get(i));
+            }
         }
     }
 
@@ -129,6 +221,71 @@ public class StudyService {
             studyDesiredTime.setStudy(study);
             studyDesiredTimeRepository.save(studyDesiredTime);
         }
+    }
 
+    // 파일 객체 DB에 저장
+    public void saveStudyFiles(List<String> studyFilePath, List<String> studyFileName,  List<String> s3FileName, Study study){
+
+        for (int i = 0; i < studyFilePath.size(); i++){
+            StudyFile studyFile = new StudyFile();
+
+            studyFile.setStudy(study);
+            studyFile.setFilePath(studyFilePath.get(i));
+            studyFile.setFileName(studyFileName.get(i));
+            studyFile.setS3FileName(s3FileName.get(i));
+
+            study.addStudyFiles(studyFile);
+            studyFileRepository.save(studyFile);
+
+        }
+    }
+
+    public void updateStudyFiles(List<String> studyFilePath, List<String> studyFileName,  List<String> s3FileName, long studyId){
+
+        Optional<Study> study = studyRepository.findById(studyId);
+        for (int i = 0; i < studyFilePath.size(); i++){
+            StudyFile studyFile = new StudyFile();
+
+            studyFile.setStudy(study.get());
+            studyFile.setFilePath(studyFilePath.get(i));
+            studyFile.setFileName(studyFileName.get(i));
+            studyFile.setS3FileName(s3FileName.get(i));
+
+            study.get().addStudyFiles(studyFile);
+
+            studyFileRepository.save(studyFile);
+            System.out.println(studyFile.getFilePath());
+        }
+    }
+
+
+    public String downloadFile(long studyFileId) {
+        Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
+        return studyFile.get().getFilePath();
+    }
+
+    public void deleteStudy(long studyId) {
+        Optional<Study> study= studyRepository.findById(studyId);
+        studyRepository.delete(study.get());
+    }
+
+    public void deleteStudyFile(long studyFileId) {
+        Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
+        studyFileRepository.delete(studyFile.get());
+    }
+
+    public void updateStudy(Long studyId, StudyCreateDto studyCreateDto) {
+      Optional<Study> study= studyRepository.findById(studyId);
+      study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
+      study.get().updateStudy(studyCreateDto);
+    }
+
+    public void deleteStudyFileForUpdate(long studyId) {
+        Optional<Study> study = studyRepository.findById(studyId);
+        List<StudyFile> studyFile = studyFileRepository.findByStudy(study.get());
+
+        for(int i=0; i<studyFile.size(); i++){
+            studyFileRepository.delete(studyFile.get(i));
+        }
     }
 }

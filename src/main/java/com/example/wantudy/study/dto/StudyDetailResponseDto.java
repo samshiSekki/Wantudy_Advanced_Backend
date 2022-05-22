@@ -1,13 +1,14 @@
 package com.example.wantudy.study.dto;
 
-import com.example.wantudy.study.domain.Study;
+import com.example.wantudy.study.Study;
 import com.example.wantudy.study.domain.StudyStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -27,9 +28,13 @@ public class StudyDetailResponseDto {
 
     private Number peopleNum;
     private Number currentNum;
+    private Number remainNum;
     private Number likeNum;
 
-    private Date deadline;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate deadline;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createAt;
 
     private StudyStatus studyStatus;
@@ -37,6 +42,7 @@ public class StudyDetailResponseDto {
     private List<String> categories;
     private List<String> desiredTime;
     private List<String> requiredInfo;
+    private List<StudyFileDto> studyFiles;
 
     //리스트는 따로 받아오기
     public static StudyDetailResponseDto from(Study study){
@@ -51,6 +57,7 @@ public class StudyDetailResponseDto {
                 .fixedStudySchedule(study.getFixedStudySchedule())
                 .peopleNum(study.getPeopleNum())
                 .currentNum(study.getCurrentNum())
+                .remainNum(study.getRemainNum())
                 .likeNum(study.getLikeNum())
                 .deadline(study.getDeadline())
                 .createAt(study.getCreateAt())

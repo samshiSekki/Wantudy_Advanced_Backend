@@ -1,19 +1,21 @@
-package com.example.wantudy.study.domain;
+package com.example.wantudy.study;
 
-import com.example.wantudy.users.User;
+import com.example.wantudy.oauth.User;
+import com.example.wantudy.study.domain.*;
+import com.example.wantudy.study.dto.StudyCreateDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
-@JsonIgnoreProperties(value={"categories", "desiredTime","requiredInfo"})
+@JsonIgnoreProperties(value={"categories", "desiredTime","requiredInfo","studyFiles"})
 public class Study {
 
     @Id
@@ -68,8 +70,11 @@ public class Study {
     @Column(name = "current_num")
     private Number currentNum;
 
+    @Column(name="remain_num")
+    private Number remainNum;
+
     @Column(name = "deadline")
-    private Date deadline;
+    private LocalDate deadline;
 
     @Column(name = "period")
     private String period;
@@ -93,7 +98,7 @@ public class Study {
     }
 
     @Builder
-    public Study(String studyName, String description, String level, String format, String location, String period, Number peopleNum,Date deadline) {
+    public Study(String studyName, String description, String level, String format, String location, String period, Number peopleNum, LocalDate deadline) {
         this.studyName = studyName;
         this.description = description;
         this.level = level;
@@ -106,8 +111,24 @@ public class Study {
 
 
     // -- 파일 연관 관계 메서드 -- //
-    public void addStudyFile(StudyFile studyFile) {
+    public void addStudyFiles(StudyFile studyFile) {
         this.studyFiles.add(studyFile);
+
+//        //Study에 파일이 저장 되어 있지 않은 경우
+//        if(studyFile.getStudy() != this)
+//            // 파일 저장
+//            studyFile.setStudy(this);
+    }
+
+    public void updateStudy(StudyCreateDto studyCreateDto){
+        this.studyName = studyCreateDto.getStudyName();
+        this.description = studyCreateDto.getDescription();
+        this.level = studyCreateDto.getLevel();
+        this.format = studyCreateDto.getFormat();
+        this.location = studyCreateDto.getLocation();
+        this.period = studyCreateDto.getPeriod();
+        this.peopleNum = studyCreateDto.getPeopleNum();
+        this.deadline = studyCreateDto.getDeadline();
     }
 
 }
