@@ -1,4 +1,4 @@
-package com.example.wantudy;
+package com.example.wantudy.config;
 
 import com.fasterxml.classmate.TypeResolver;
 import io.swagger.annotations.ApiModel;

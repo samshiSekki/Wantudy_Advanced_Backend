@@ -1,4 +1,4 @@
-package com.example.wantudy;
+package com.example.wantudy.config;
 import com.example.wantudy.jwt.TokenAuthenticationFilter;
 import com.example.wantudy.jwt.TokenProvider;
 import com.example.wantudy.oauth.CustomOAuth2UserService;
