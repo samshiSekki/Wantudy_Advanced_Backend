@@ -89,21 +89,19 @@ public class StudyController {
     }
 
     @ApiOperation("스터디 개설")
-    @PostMapping("")
-    public EntityResponseDto createStudy(
-            @RequestPart(value = "studyCreateDto") StudyCreateDto studyCreateDto,
-            @RequestPart(value = "file", required = false) List<MultipartFile> multipartFile) throws Exception {
+    @PostMapping(consumes = {"multipart/form-data"})
+    public EntityResponseDto createStudy(@ModelAttribute StudyCreateDto studyCreateDto) throws Exception{
 
         Study study = new Study(studyCreateDto.getStudyName(), studyCreateDto.getDescription(), studyCreateDto.getLevel(),
                 studyCreateDto.getFormat(), studyCreateDto.getLocation(), studyCreateDto.getPeriod(), studyCreateDto.getPeopleNum(),
                 studyCreateDto.getDeadline()); // DTO에서 리스트 제외한 필드 가져와서 스터디 객체 만듦
 
-        if(!CollectionUtils.isEmpty(multipartFile)) {
+        if(!CollectionUtils.isEmpty(studyCreateDto.getMultipartFile())) {
             //파일이 존재한다면 파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
-            for (int i = 0; i < multipartFile.size(); i++) {
+            for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
 
-                StudyFileUploadDto studyFileUploadDto = s3Service.upload(multipartFile.get(i));
-                String fileName = multipartFile.get(i).getOriginalFilename();
+                StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
+                String fileName = studyCreateDto.getMultipartFile().get(i).getOriginalFilename();
 
                 List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
                 List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
@@ -144,8 +142,7 @@ public class StudyController {
 
     @ApiOperation("스터디 수정")
     @PatchMapping("/{studyId}")
-    public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @RequestPart(value="studyCreateDto") StudyCreateDto studyCreateDto,
-                                         @RequestPart(value="file") List<MultipartFile> multipartFile) throws IOException {
+    public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @ModelAttribute StudyCreateDto studyCreateDto) throws IOException {
 
         studyService.updateStudy(studyId, studyCreateDto);
 
@@ -182,10 +179,10 @@ public class StudyController {
         studyService.saveDesiredTime(desiredTimeList,study);
 
         //파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
-        for (int i = 0; i < multipartFile.size(); i++) {
+        for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
 
-            StudyFileUploadDto studyFileUploadDto = s3Service.upload(multipartFile.get(i));
-            String fileName = multipartFile.get(i).getOriginalFilename();
+            StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
+            String fileName = studyCreateDto.getMultipartFile().get(i).getOriginalFilename();
 
             List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
             List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());

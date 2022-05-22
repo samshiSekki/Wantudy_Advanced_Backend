@@ -65,13 +65,13 @@ public class Study {
     private String location;
 
     @Column(name = "people_num")
-    private Number peopleNum;
+    private Integer peopleNum;
 
     @Column(name = "current_num")
-    private Number currentNum;
+    private Integer currentNum;
 
     @Column(name="remain_num")
-    private Number remainNum;
+    private Integer remainNum;
 
     @Column(name = "deadline")
     private LocalDate deadline;
@@ -84,7 +84,7 @@ public class Study {
     private StudyStatus studyStatus = StudyStatus.RECRUIT;
 
     @Column(name="like_num")
-    private Number likeNum;
+    private Integer likeNum;
 
     @Column(name = "create_at")
     private LocalDateTime createAt;
@@ -98,7 +98,7 @@ public class Study {
     }
 
     @Builder
-    public Study(String studyName, String description, String level, String format, String location, String period, Number peopleNum, LocalDate deadline) {
+    public Study(String studyName, String description, String level, String format, String location, String period, Integer peopleNum, LocalDate deadline) {
         this.studyName = studyName;
         this.description = description;
         this.level = level;

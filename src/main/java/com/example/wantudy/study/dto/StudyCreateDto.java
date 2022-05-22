@@ -1,8 +1,11 @@
 package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,6 +15,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class StudyCreateDto {
+
+    @ApiModelProperty(value="스터디 파일", required = false)
+    private List<MultipartFile> multipartFile = new ArrayList<>();
 
     @ApiModelProperty(value="스터디 이름", required = true, example = "토플 스터디")
     private String studyName;
@@ -32,8 +38,10 @@ public class StudyCreateDto {
     private String period;
 
     @ApiModelProperty(value="스터디 모집 인원", required = true, example = "5", dataType = "Number")
-    private Number peopleNum;
+    private Integer peopleNum;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value="스터디 모집 기간", required = true, example = "2022-05-30")
     private LocalDate deadline;
 
@@ -45,7 +53,6 @@ public class StudyCreateDto {
 
     @ApiModelProperty(value="신청서 필수 항목", required = true,  dataType = "List")
     private List<String> requiredInfo = new ArrayList<>();
-//    private List<String> studyFileNames = new ArrayList<>();
 
     //DTO를 Entity로 변환해주기 위한 메소드
     public Study toEntity(){
