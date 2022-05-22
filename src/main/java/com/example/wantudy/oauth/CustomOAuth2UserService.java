@@ -67,8 +67,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .password(password)
                     .nickname(nickname)
                     .profileImage(profileImage)
-                    .providerType(ProviderType.KAKAO)
                     .build();
+
+            switch (provider) {
+                case "kakao":
+                    existUser.setProviderType(ProviderType.KAKAO);
+                    break;
+                case "google":
+                    existUser.setProviderType(ProviderType.GOOGLE);
+                    break;
+            }
             userDetailsService.saveUser(existUser);
         }
 

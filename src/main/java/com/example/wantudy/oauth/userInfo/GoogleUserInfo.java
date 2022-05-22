@@ -38,6 +38,6 @@ public class GoogleUserInfo implements OAuth2UserInfo {
 
     @Override
     public String getProfileImage() {
-        return null;
+        return attributes.get("picture").toString();
     }
 }

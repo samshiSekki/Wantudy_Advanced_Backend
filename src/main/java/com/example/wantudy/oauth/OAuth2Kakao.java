@@ -3,16 +3,12 @@ package com.example.wantudy.oauth;
 import com.example.wantudy.oauth.userInfo.KakaoUserInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,7 +23,6 @@ public class OAuth2Kakao {
     private final ObjectMapper objectMapper;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    // @Value가 붙으면 private 과 final 이 붙은 상수가 된다.
     private String kakaoOAuth2ClientId;
 
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")

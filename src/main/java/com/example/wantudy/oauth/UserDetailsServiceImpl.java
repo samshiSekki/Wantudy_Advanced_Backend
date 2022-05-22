@@ -2,6 +2,7 @@ package com.example.wantudy.oauth;
 
 import com.example.wantudy.jwt.AuthResponse;
 import com.example.wantudy.jwt.TokenProvider;
+import com.example.wantudy.oauth.userInfo.GoogleUserInfo;
 import com.example.wantudy.oauth.userInfo.KakaoUserInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.context.annotation.Lazy;
@@ -23,13 +24,15 @@ import org.springframework.transaction.annotation.Transactional;
  * */
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final OAuth2Kakao oauth2Kakao;
+    private final OAuth2Google oAuth2Google;
     private final UserRepository userRepository;
     private final AuthenticationManager authManager;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenProvider tokenProvider;
 
-    public UserDetailsServiceImpl(OAuth2Kakao oauth2Kakao, UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, TokenProvider tokenProvider) {
+    public UserDetailsServiceImpl(OAuth2Kakao oauth2Kakao, OAuth2Google oAuth2Google, UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, TokenProvider tokenProvider) {
         this.oauth2Kakao = oauth2Kakao;
+        this.oAuth2Google = oAuth2Google;
         this.userRepository = userRepository;
         this.authManager=authManager;
         this.bCryptPasswordEncoder=bCryptPasswordEncoder;
@@ -67,7 +70,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         if (user == null) {
             String encodedPassword = bCryptPasswordEncoder.encode(password);
-            user = new User(email, encodedPassword, profileImage, nickname, ProviderType.KAKAO);
+            user = new User(email, encodedPassword, profileImage, nickname);
+            user.setProviderType(ProviderType.KAKAO);
             userRepository.save(user);
         }
 
@@ -78,10 +82,37 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         System.out.println("jwtToken = " + jwtToken);
         AuthResponse authResponse = new AuthResponse(jwtToken, user.getUserId());
         return authResponse;
-
-//        AuthResponse authResponse = saveUserInfoInSecurity(user.getEmail(), user.getPassword());
-//        return authResponse;
     }
+
+    public AuthResponse oauth2AuthorizationGoogle(String code) throws JsonProcessingException {
+        AuthorizationGoogle authorization = oAuth2Google.callTokenApi(code);
+        System.out.println("authorization = " + authorization.getAccess_token());
+        GoogleUserInfo googleUserInfo = oAuth2Google.callGetUserByAccessToken(authorization.getAccess_token());
+        System.out.println("googleUserInfo = " + googleUserInfo.getAttributes());
+
+        String email = googleUserInfo.getEmail();
+        String profileImage = googleUserInfo.getProfileImage();
+        String password = googleUserInfo.getProviderId() + email;
+        String nickname = googleUserInfo.getName();
+        User user = findByEmail(email);
+
+        if (user == null) {
+            String encodedPassword = bCryptPasswordEncoder.encode(password);
+            user = new User(email, encodedPassword, profileImage, nickname);
+            user.setProviderType(ProviderType.GOOGLE);
+            userRepository.save(user);
+        }
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
+        Authentication auth = authManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        String jwtToken = tokenProvider.generateToken(auth);
+        System.out.println("jwtToken = " + jwtToken);
+        AuthResponse authResponse = new AuthResponse(jwtToken, user.getUserId());
+        return authResponse;
+    }
+
+
 //
 //    public User saveUser(KakaoUserInfo kakaoUserInfo){
 //        String email = kakaoUserInfo.getEmail();
