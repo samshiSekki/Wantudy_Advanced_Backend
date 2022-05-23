@@ -19,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 @Configuration
-@PropertySource(value = "application-oauth.properties")
+@PropertySource(value = "application.properties")
 public class OAuth2Google {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;

@@ -24,4 +24,4 @@ cd $REPOSITORY/build/libs
 echo "> 배포 파일 경로 : $JAR_PATH"
 
 nohup java -jar $JAR_NAME \
-  --spring.config.location=/home/ubuntu/app/src/main/resources/application.properties, /home/ubuntu/app/src/main/resources/application-oauth.properties > $REPOSITORY/nohup.out 2>&1 &
+  --spring.config.location=/home/ubuntu/app/src/main/resources/application.properties > $REPOSITORY/nohup.out 2>&1 &
