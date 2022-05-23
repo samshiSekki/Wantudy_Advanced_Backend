@@ -147,12 +147,14 @@ public class AwsS3Service {
         return new StudyFileDto.downloadFileResponse(bytes, fileName);
     }
 
+    //버킷에서 파일 삭제
     public void deleteOnlyFile(long studyFileId) {
         Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
         String storedFileName = studyFile.get().getS3FileName();
         s3Client.deleteObject(bucket, storedFileName);
     }
 
+    //버킷에서 파일 삭제
     public void deleteStudyAndFile(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
         for (int i=0; i < study.get().getStudyFiles().size(); i++){

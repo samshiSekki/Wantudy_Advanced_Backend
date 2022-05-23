@@ -37,7 +37,7 @@ public class StudyCreateDto {
     @ApiModelProperty(value="스터디 기간", required = true, example = "6개월")
     private String period;
 
-    @ApiModelProperty(value="스터디 모집 인원", required = true, example = "5", dataType = "Number")
+    @ApiModelProperty(value="스터디 모집 인원", required = true, example = "5")
     private Integer peopleNum;
 
     @JsonFormat(pattern="yyyy-MM-dd")
@@ -45,7 +45,10 @@ public class StudyCreateDto {
     @ApiModelProperty(value="스터디 모집 기간", required = true, example = "2022-05-30")
     private LocalDate deadline;
 
-    @ApiModelProperty(value="스터디 카테고리", required = true, dataType = "List")
+    @ApiModelProperty(value="스터디 1차 카테고리", required = true)
+    private String parentCategory;
+
+    @ApiModelProperty(value="스터디 2차 카테고리", required = true, dataType = "List")
     private List<String> categories = new ArrayList<>();
 
     @ApiModelProperty(value="희망 시간대", required = true, dataType = "List")
