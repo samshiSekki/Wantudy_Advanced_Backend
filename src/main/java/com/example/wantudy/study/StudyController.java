@@ -1,9 +1,11 @@
 package com.example.wantudy.study;
 
+import com.example.wantudy.study.domain.Category;
 import com.example.wantudy.study.domain.StudyStatus;
 import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.repository.StudySpec;
 import com.example.wantudy.study.service.AwsS3Service;
+import com.example.wantudy.study.service.CategoryService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;;
@@ -33,6 +35,7 @@ public class StudyController {
 
     private final StudyService studyService;
     private final AwsS3Service s3Service;
+    private final CategoryService categoryService;
 
     @ApiOperation("스터디 전체 조회")
     @GetMapping("")
@@ -89,21 +92,19 @@ public class StudyController {
     }
 
     @ApiOperation("스터디 개설")
-    @PostMapping("")
-    public EntityResponseDto createStudy(
-            @RequestPart(value = "studyCreateDto") StudyCreateDto studyCreateDto,
-            @RequestPart(value = "file", required = false) List<MultipartFile> multipartFile) throws Exception {
+    @PostMapping(consumes = {"multipart/form-data"})
+    public EntityResponseDto createStudy(@ModelAttribute StudyCreateDto studyCreateDto) throws Exception{
 
         Study study = new Study(studyCreateDto.getStudyName(), studyCreateDto.getDescription(), studyCreateDto.getLevel(),
                 studyCreateDto.getFormat(), studyCreateDto.getLocation(), studyCreateDto.getPeriod(), studyCreateDto.getPeopleNum(),
                 studyCreateDto.getDeadline()); // DTO에서 리스트 제외한 필드 가져와서 스터디 객체 만듦
 
-        if(!CollectionUtils.isEmpty(multipartFile)) {
+        if(!CollectionUtils.isEmpty(studyCreateDto.getMultipartFile())) {
             //파일이 존재한다면 파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
-            for (int i = 0; i < multipartFile.size(); i++) {
+            for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
 
-                StudyFileUploadDto studyFileUploadDto = s3Service.upload(multipartFile.get(i));
-                String fileName = multipartFile.get(i).getOriginalFilename();
+                StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
+                String fileName = studyCreateDto.getMultipartFile().get(i).getOriginalFilename();
 
                 List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
                 List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
@@ -119,7 +120,16 @@ public class StudyController {
             String category = studyCreateDto.getCategories().get(i);
             List<String> categories = List.of(category);
             studyService.saveStudy(study);
-            studyService.saveCategory(categories, study);
+//            studyService.saveCategory(categories, study);
+
+            //부모 카테고리 있는지 찾음
+            Category parent = categoryService.findParent(studyCreateDto.getParentCategory());
+
+            //없으면 얘가 부모카테고리니까 부모로 저장
+            if(parent == null)
+                categoryService.saveParentCategory(studyCreateDto.getParentCategory());
+
+            categoryService.saveCategory(categories, study, studyCreateDto.getParentCategory());
         }
 
         for (int i = 0; i < studyCreateDto.getDesiredTime().size(); i++) {
@@ -143,9 +153,8 @@ public class StudyController {
 
 
     @ApiOperation("스터디 수정")
-    @PatchMapping("/{studyId}")
-    public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @RequestPart(value="studyCreateDto") StudyCreateDto studyCreateDto,
-                                         @RequestPart(value="file") List<MultipartFile> multipartFile) throws IOException {
+    @PatchMapping(value="/{studyId}", consumes = {"multipart/form-data"})
+    public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @ModelAttribute StudyCreateDto studyCreateDto) throws IOException {
 
         studyService.updateStudy(studyId, studyCreateDto);
 
@@ -177,15 +186,17 @@ public class StudyController {
 
         Study study = studyService.findByStudyId(studyId);
 
-        studyService.saveCategory(categories, study);
+//        studyService.saveCategory(categories, study);
+        categoryService.saveCategory(categories, study, studyCreateDto.getParentCategory());
+
         studyService.saveRequiredInfo(requiredInfoList,study);
         studyService.saveDesiredTime(desiredTimeList,study);
 
         //파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
-        for (int i = 0; i < multipartFile.size(); i++) {
+        for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
 
-            StudyFileUploadDto studyFileUploadDto = s3Service.upload(multipartFile.get(i));
-            String fileName = multipartFile.get(i).getOriginalFilename();
+            StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
+            String fileName = studyCreateDto.getMultipartFile().get(i).getOriginalFilename();
 
             List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
             List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
@@ -198,8 +209,6 @@ public class StudyController {
 
         return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
     }
-
-
 
     @ApiOperation("스터디 삭제")
     @DeleteMapping("/{studyId}")
@@ -232,5 +241,10 @@ public class StudyController {
         s3Service.deleteOnlyFile(studyFileId);
         studyService.deleteStudyFile(studyFileId);
         return new EntityResponseDto.messageResponse(204, "파일 삭제 완료");
+    }
+
+    @GetMapping("/category")
+    public List<CategoryDto> test(){
+        return categoryService.getV1();
     }
 }
