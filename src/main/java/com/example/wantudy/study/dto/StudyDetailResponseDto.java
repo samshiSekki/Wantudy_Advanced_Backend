@@ -40,6 +40,7 @@ public class StudyDetailResponseDto {
     private StudyStatus studyStatus;
 
     private List<String> categories;
+
     private List<String> desiredTime;
     private List<String> requiredInfo;
     private List<StudyFileDto> studyFiles;

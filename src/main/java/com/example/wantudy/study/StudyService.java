@@ -1,10 +1,7 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.*;
-import com.example.wantudy.study.dto.StudyAllResponseDto;
-import com.example.wantudy.study.dto.StudyCreateDto;
-import com.example.wantudy.study.dto.StudyDetailResponseDto;
-import com.example.wantudy.study.dto.StudyFileDto;
+import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.repository.*;
 import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -36,7 +34,9 @@ public class StudyService {
 
     private final StudyFileRepository studyFileRepository;
 
-    private final AwsS3Service s3Service;
+//    private final AwsS3Service s3Service;
+
+
 
 
     public Study findByStudyId(long studyId) {

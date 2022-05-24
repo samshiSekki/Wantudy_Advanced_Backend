@@ -1,9 +1,11 @@
 package com.example.wantudy.study;
 
+import com.example.wantudy.study.domain.Category;
 import com.example.wantudy.study.domain.StudyStatus;
 import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.repository.StudySpec;
 import com.example.wantudy.study.service.AwsS3Service;
+import com.example.wantudy.study.service.CategoryService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;;
@@ -33,6 +35,7 @@ public class StudyController {
 
     private final StudyService studyService;
     private final AwsS3Service s3Service;
+    private final CategoryService categoryService;
 
     @ApiOperation("스터디 전체 조회")
     @GetMapping("")
@@ -117,7 +120,16 @@ public class StudyController {
             String category = studyCreateDto.getCategories().get(i);
             List<String> categories = List.of(category);
             studyService.saveStudy(study);
-            studyService.saveCategory(categories, study);
+//            studyService.saveCategory(categories, study);
+
+            //부모 카테고리 있는지 찾음
+            Category parent = categoryService.findParent(studyCreateDto.getParentCategory());
+
+            //없으면 얘가 부모카테고리니까 부모로 저장
+            if(parent == null)
+                categoryService.saveParentCategory(studyCreateDto.getParentCategory());
+
+            categoryService.saveCategory(categories, study, studyCreateDto.getParentCategory());
         }
 
         for (int i = 0; i < studyCreateDto.getDesiredTime().size(); i++) {
@@ -141,7 +153,7 @@ public class StudyController {
 
 
     @ApiOperation("스터디 수정")
-    @PatchMapping("/{studyId}")
+    @PatchMapping(value="/{studyId}", consumes = {"multipart/form-data"})
     public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @ModelAttribute StudyCreateDto studyCreateDto) throws IOException {
 
         studyService.updateStudy(studyId, studyCreateDto);
@@ -174,7 +186,9 @@ public class StudyController {
 
         Study study = studyService.findByStudyId(studyId);
 
-        studyService.saveCategory(categories, study);
+//        studyService.saveCategory(categories, study);
+        categoryService.saveCategory(categories, study, studyCreateDto.getParentCategory());
+
         studyService.saveRequiredInfo(requiredInfoList,study);
         studyService.saveDesiredTime(desiredTimeList,study);
 
@@ -195,8 +209,6 @@ public class StudyController {
 
         return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
     }
-
-
 
     @ApiOperation("스터디 삭제")
     @DeleteMapping("/{studyId}")
@@ -229,5 +241,10 @@ public class StudyController {
         s3Service.deleteOnlyFile(studyFileId);
         studyService.deleteStudyFile(studyFileId);
         return new EntityResponseDto.messageResponse(204, "파일 삭제 완료");
+    }
+
+    @GetMapping("/category")
+    public List<CategoryDto> test(){
+        return categoryService.getV1();
     }
 }
