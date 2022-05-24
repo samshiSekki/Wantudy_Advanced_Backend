@@ -1,19 +1,25 @@
 package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.domain.Category;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class CategoryDto {
 
+    private long categoryId;
     private String categoryName;
+    private List<CategoryDto> child;
 
-    @Builder
-    public CategoryDto(String categoryName) {
-        this.categoryName = categoryName;
+    public CategoryDto(final Category category){
+        this.categoryId = category.getCategoryId();
+        this.categoryName = category.getCategoryName();
+        this.child = category.getChild().stream().map(CategoryDto::new).collect(Collectors.toList());
     }
 
     public Category toEntity() {

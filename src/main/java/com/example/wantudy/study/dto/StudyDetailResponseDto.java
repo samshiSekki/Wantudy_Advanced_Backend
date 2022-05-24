@@ -26,10 +26,10 @@ public class StudyDetailResponseDto {
     private String period;
     private String fixedStudySchedule;
 
-    private Number peopleNum;
-    private Number currentNum;
-    private Number remainNum;
-    private Number likeNum;
+    private Integer peopleNum;
+    private Integer currentNum;
+    private Integer remainNum;
+    private Integer likeNum;
 
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate deadline;
@@ -40,6 +40,7 @@ public class StudyDetailResponseDto {
     private StudyStatus studyStatus;
 
     private List<String> categories;
+
     private List<String> desiredTime;
     private List<String> requiredInfo;
     private List<StudyFileDto> studyFiles;
