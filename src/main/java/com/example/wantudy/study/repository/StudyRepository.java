@@ -8,12 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 @Repository
-public interface StudyRepository extends JpaRepository<Study, Long>, JpaSpecificationExecutor<Study> {
-    Study findByStudyName(String studyName);
+public interface StudyRepository extends JpaRepository<Study, Long>, JpaSpecificationExecutor<Study>, StudyRepositoryCustom{
     Page<Study> findAll(Specification<Study> spec, Pageable pageable);
+//    List<Study> findByStudyName(String studyName);
 //    Page<Study> findByStudyNameContaining(String studyName, Pageable pageable);
 //    Page<Study> findByCategoriesContaining(List<String> categories, Pageable pageable);
 }

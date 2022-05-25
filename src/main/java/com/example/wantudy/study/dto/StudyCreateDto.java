@@ -2,6 +2,7 @@ package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@ApiModel
 public class StudyCreateDto {
 
     @ApiModelProperty(value="스터디 파일", required = false)

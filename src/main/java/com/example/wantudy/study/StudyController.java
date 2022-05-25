@@ -3,16 +3,14 @@ package com.example.wantudy.study;
 import com.example.wantudy.study.domain.Category;
 import com.example.wantudy.study.domain.StudyStatus;
 import com.example.wantudy.study.dto.*;
-import com.example.wantudy.study.repository.StudySpec;
 import com.example.wantudy.study.service.AwsS3Service;
 import com.example.wantudy.study.service.CategoryService;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -37,61 +34,62 @@ public class StudyController {
     private final AwsS3Service s3Service;
     private final CategoryService categoryService;
 
-    @ApiOperation("스터디 전체 조회")
+//    @ApiOperation("스터디 전체 조회")
+//    @GetMapping("")
+//    public EntityResponseDto getAllStudy(@PageableDefault(size=5, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable){
+//
+//        Specification<Study> spec = (root, query, criteriaBuilder) -> null;
+//
+//        StudyStatus status = StudyStatus.RECRUIT;
+//        spec = spec.and(StudySpec.equalStatus(status));
+//
+////        Page<StudyAllResponseDto> responseData = studyService.getAllStudy(pageable);
+//
+//        //모집중인 스터디만 뜨기
+//        Page<StudyAllResponseDto> responseData = studyService.getStudySearch(spec, pageable);
+//        if(!CollectionUtils.isEmpty(responseData.getContent()))
+//            return new EntityResponseDto(200, "스터디 조회 성공(모집중인 스터디만 조회)", responseData);
+//
+//        return new EntityResponseDto(404, "페이지가 없습니다.", null);
+//    }
+
+//    @GetMapping("/tt")
+//    public EntityResponseDto category(@RequestParam(required = false, name="category") List<String> category,
+//                                      @PageableDefault(size=5, sort="createAt", direction = DESC) Pageable pageable){
+//
+//        System.out.println(category);
+//
+//        List<StudyAllResponseDto> studies = studyService.getStudy(pageable, category);
+//
+//        return new EntityResponseDto(200, "카테고리별 조회", studies);
+//    }
+
+//    @GetMapping("/category")
+//    public List<CategoryDto> test(){
+//        return categoryService.getV1();
+//    }
+
+    @ApiOperation(value = "스터디 조회(전체 + 필터링)", notes = "스터디 전체 조회 + 필터링 조회 엔드 포인트, " +
+            "정렬 컬럼 : createAt, remainNum, likeNum, deadline" + "정렬 기준 : desc,asc")
+    @ApiImplicitParam(name="category", value = "category1,category2")
     @GetMapping("")
-    public EntityResponseDto getAllStudy(@PageableDefault(size=5, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable){
+    public EntityResponseDto getStudies(
+                           @RequestParam(required = false) String studyName,
+                           @RequestParam(required = false) String location,
+                           @RequestParam(required = false) StudyStatus status,
+                           @RequestParam(name="category", required = false) String category,
+                           @PageableDefault(size=5, sort="createAt", direction = DESC) Pageable pageable) {
 
-        Specification<Study> spec = (root, query, criteriaBuilder) -> null;
-
-        StudyStatus status = StudyStatus.RECRUIT;
-        spec = spec.and(StudySpec.equalStatus(status));
-
-//        Page<StudyAllResponseDto> responseData = studyService.getAllStudy(pageable);
-
-        //모집중인 스터디만 뜨기
-        Page<StudyAllResponseDto> responseData = studyService.getStudySearch(spec, pageable);
-        if(!CollectionUtils.isEmpty(responseData.getContent()))
-            return new EntityResponseDto(200, "스터디 조회 성공(모집중인 스터디만 조회)", responseData);
-
-        return new EntityResponseDto(404, "페이지가 없습니다.", null);
-    }
-
-    @ApiOperation("스터디 조건 조회")
-    @GetMapping("/filter")
-    public EntityResponseDto search(@RequestParam(required = false) String studyName, @RequestParam(required = false) String location,
-                                            @RequestParam(required = false, name = "status") StudyStatus status,
-                                          @PageableDefault(size=5, sort="createAt", direction = DESC) Pageable pageable){
-        Specification<Study> spec = (root, query, criteriaBuilder) -> null;
-
-        if(studyName != null){
-            spec = spec.and(StudySpec.likeStudyName(studyName));
-        }
-        if(location != null){
-            spec = spec.and(StudySpec.likeLocation(location));
-        }
-        if(status != null){
-            spec = spec.and(StudySpec.equalStatus(status));
-        }
-
-        Page<StudyAllResponseDto> responseData = studyService.getStudySearch(spec, pageable);
+//        Page<StudyAllResponseDto> responseData = studyService.getSearch(studyName, location, status, pageable);
+        Page<StudyAllResponseDto> responseData = studyService.getStudies(studyName, location, status, category, pageable);
 
         if(!CollectionUtils.isEmpty(responseData.getContent()))
-            return new EntityResponseDto(200, "스터디 조건 조회 성공", responseData);
+            return new EntityResponseDto(200, "스터디 조회 성공", responseData);
 
-        return new EntityResponseDto(404, "페이지가 없습니다.", null);
-    }
+        return new EntityResponseDto(404, "검색 결과가 없습니다.", null);
+}
 
-    @ApiOperation("스터디 상세 조회")
-    @GetMapping("/{studyId}")
-    public EntityResponseDto getOneStudy(@ApiParam(value="스터디 ID", required = true) @PathVariable("studyId") long studyId) {
-
-        Study study = studyService.findByStudyId(studyId);
-        StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
-
-        return new EntityResponseDto(200, "스터디 상세 페이지 조회", studyDetailResponseDto);
-    }
-
-    @ApiOperation("스터디 개설")
+    @ApiOperation(value = "스터디 개설", notes = "스터디 개설 엔드 포인트, file 안 보낼 때 Send empty value 체크 XXX")
     @PostMapping(consumes = {"multipart/form-data"})
     public EntityResponseDto createStudy(@ModelAttribute StudyCreateDto studyCreateDto) throws Exception{
 
@@ -149,6 +147,51 @@ public class StudyController {
         StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
 
         return new EntityResponseDto(201, "스터디 등록", studyDetailResponseDto);
+    }
+
+//    @ApiOperation("스터디 조회(전체 조회, 검색 필터)")
+//    @GetMapping("")
+//    public EntityResponseDto getStudyBySearch(@RequestParam(required = false) String studyName, @RequestParam(required = false) String location,
+//                                            @RequestParam(required = false, name = "status") StudyStatus status,
+//                                          @PageableDefault(size=5, sort="createAt", direction = DESC) Pageable pageable){
+//
+//        Specification<Study> spec = (root, query, criteriaBuilder) -> null;
+//
+//        if(studyName != null){
+//            spec = spec.and(StudySpec.likeStudyName(studyName));
+//        }
+//        if(location != null){
+//            spec = spec.and(StudySpec.likeLocation(location));
+//        }
+//        if(status != null){
+//            spec = spec.and(StudySpec.equalStatus(status));
+//        }
+//
+//        Page<StudyAllResponseDto> responseData = studyService.getStudySearch(spec, pageable);
+//
+//        if(!CollectionUtils.isEmpty(responseData.getContent()))
+//            return new EntityResponseDto(200, "스터디 조건 조회 성공", responseData);
+//
+//        return new EntityResponseDto(404, "검색 결과가 없습니다.", null);
+//    }
+
+//    @ApiOperation("스터디 조회(카테고리 필터)")
+//    @GetMapping("/category")
+//    public EntityResponseDto getStudyByCategory(@RequestParam String category, @PageableDefault(size=5, sort="createAt", direction = DESC) Pageable pageable){
+//        Page<StudyAllResponseDto> responseData = studyService.getStudyByCategory(category, pageable);
+//        if(!CollectionUtils.isEmpty(responseData.getContent()))
+//            return new EntityResponseDto(200, "스터디 조건 조회 성공", responseData);
+//        return new EntityResponseDto(404, "검색 결과가 없습니다.", null);
+//    }
+
+    @ApiOperation("스터디 상세 조회")
+    @GetMapping("/{studyId}")
+    public EntityResponseDto getOneStudy(@ApiParam(value="스터디 ID", required = true) @PathVariable("studyId") long studyId) {
+
+        Study study = studyService.findByStudyId(studyId);
+        StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
+
+        return new EntityResponseDto(200, "스터디 상세 페이지 조회", studyDetailResponseDto);
     }
 
 
@@ -210,6 +253,64 @@ public class StudyController {
         return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
     }
 
+//    @ApiOperation("스터디 수정")
+//    @PatchMapping(value="update/{studyId}", consumes = {"multipart/form-data"})
+//    public EntityResponseDto updateTEST(@PathVariable("studyId") long studyId, StudyUpdateDto studyCreateDto) throws IOException {
+//
+//        studyService.updateStudyTest(studyId, studyCreateDto);
+//
+//        List<String> categories = new ArrayList<>();
+//        List<String> requiredInfoList = new ArrayList<>();
+//        List<String> desiredTimeList = new ArrayList<>();
+//
+//        for (int i = 0; i < studyCreateDto.getCategories().size(); i++) {
+//            String category = studyCreateDto.getCategories().get(i);
+//            categories.add(category);
+//        }
+//
+//        for (int i = 0; i < studyCreateDto.getRequiredInfo().size(); i++) {
+//            String requiredInfo = studyCreateDto.getRequiredInfo().get(i);
+//            requiredInfoList.add(requiredInfo);
+//        }
+//
+//        for (int i = 0; i < studyCreateDto.getDesiredTime().size(); i++) {
+//            String desiredTime = studyCreateDto.getDesiredTime().get(i);
+//            desiredTimeList.add(desiredTime);
+//        }
+//
+//        //버킷에서 파일 삭제
+//        s3Service.deleteStudyAndFile(studyId);
+//
+//        //DB에서 파일과 연관관계 리스트 삭제
+//        studyService.deleteStudyFileForUpdate(studyId);
+//        studyService.deleteListForUpdate(studyId);
+//
+//        Study study = studyService.findByStudyId(studyId);
+//
+////        studyService.saveCategory(categories, study);
+//        categoryService.saveCategory(categories, study, studyCreateDto.getParentCategory());
+//
+//        studyService.saveRequiredInfo(requiredInfoList,study);
+//        studyService.saveDesiredTime(desiredTimeList,study);
+//
+//        //파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
+//        for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
+//
+//            StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
+//            String fileName = studyCreateDto.getMultipartFile().get(i).getOriginalFilename();
+//
+//            List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
+//            List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
+//            List<String> studyFileName = List.of(fileName);
+//
+//            studyService.updateStudyFiles(studyFilePath, studyFileName, s3FileName, studyId);
+//        }
+//
+//        StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
+//
+//        return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
+//    }
+
     @ApiOperation("스터디 삭제")
     @DeleteMapping("/{studyId}")
     public EntityResponseDto.messageResponse deleteStudy(@PathVariable("studyId") long studyId) {
@@ -241,10 +342,5 @@ public class StudyController {
         s3Service.deleteOnlyFile(studyFileId);
         studyService.deleteStudyFile(studyFileId);
         return new EntityResponseDto.messageResponse(204, "파일 삭제 완료");
-    }
-
-    @GetMapping("/category")
-    public List<CategoryDto> test(){
-        return categoryService.getV1();
     }
 }
