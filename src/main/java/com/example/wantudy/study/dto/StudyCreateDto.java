@@ -42,8 +42,8 @@ public class StudyCreateDto {
     @ApiModelProperty(value="스터디 모집 인원", required = true, example = "5")
     private Integer peopleNum;
 
-    @JsonFormat(pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value="스터디 모집 기간", required = true, example = "2022-05-30")
     private LocalDate deadline;
 

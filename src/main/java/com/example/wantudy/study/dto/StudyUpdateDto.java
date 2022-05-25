@@ -1,6 +1,8 @@
 package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,10 +15,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@ApiModel
 public class StudyUpdateDto {
-
-    @ApiModelProperty(value = "스터디 파일", required = false)
-    private List<MultipartFile> multipartFile = new ArrayList<>();
 
     @ApiModelProperty(value = "스터디 이름", required = false, example = "토플 스터디")
     private String studyName;
@@ -40,6 +40,7 @@ public class StudyUpdateDto {
     private Integer peopleNum;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "스터디 모집 기간", required = false, example = "2022-05-30")
     private LocalDate deadline;
 

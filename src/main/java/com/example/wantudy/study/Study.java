@@ -2,7 +2,7 @@ package com.example.wantudy.study;
 
 import com.example.wantudy.oauth.User;
 import com.example.wantudy.study.domain.*;
-import com.example.wantudy.study.dto.StudyCreateDto;
+import com.example.wantudy.study.dto.StudyUpdateDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -120,25 +120,18 @@ public class Study {
 //            studyFile.setStudy(this);
     }
 
-    public void updateStudy(StudyCreateDto studyCreateDto){
-        this.studyName = studyCreateDto.getStudyName();
-        this.description = studyCreateDto.getDescription();
-        this.level = studyCreateDto.getLevel();
-        this.format = studyCreateDto.getFormat();
-        this.location = studyCreateDto.getLocation();
-        this.period = studyCreateDto.getPeriod();
-        this.peopleNum = studyCreateDto.getPeopleNum();
-        this.deadline = studyCreateDto.getDeadline();
+    public void removeStudyFiles(StudyFile studyFile){
+        this.studyFiles.remove(studyFile);
     }
 
-//    public void updateStudyTest(StudyUpdateDto studyCreateDto){
-//        this.studyName = studyCreateDto.getStudyName();
-//        this.description = studyCreateDto.getDescription();
-//        this.level = studyCreateDto.getLevel();
-//        this.format = studyCreateDto.getFormat();
-//        this.location = studyCreateDto.getLocation();
-//        this.period = studyCreateDto.getPeriod();
-//        this.peopleNum = studyCreateDto.getPeopleNum();
-//        this.deadline = studyCreateDto.getDeadline();
-//    }
+    public void updateStudy(StudyUpdateDto studyUpdateDto){
+        this.studyName = studyUpdateDto.getStudyName();
+        this.description = studyUpdateDto.getDescription();
+        this.level = studyUpdateDto.getLevel();
+        this.format = studyUpdateDto.getFormat();
+        this.location = studyUpdateDto.getLocation();
+        this.period = studyUpdateDto.getPeriod();
+        this.peopleNum = studyUpdateDto.getPeopleNum();
+        this.deadline = studyUpdateDto.getDeadline();
+    }
 }
