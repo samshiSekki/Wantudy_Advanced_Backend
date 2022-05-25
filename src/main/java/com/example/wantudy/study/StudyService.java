@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.transaction.Transactional;
@@ -206,8 +207,10 @@ public class StudyService {
         Optional<Study> study = studyRepository.findById(categoryStudy.getStudyId());
         List<String> categories = new ArrayList<>();
         List<StudyCategory> studyCategories = studyCategoryRepository.findByStudy(study.get());
+        System.out.println(studyCategories.get(0));
         for(int i=0;i<studyCategories .size();i++)
             categories.add(studyCategories.get(i).getCategory().getCategoryName());
+            System.out.println(categories);
         return categories;
     }
 
@@ -262,29 +265,62 @@ public class StudyService {
 //    }
 
     //업데이트 시 원래 매핑되어 있던 연관관계 칼럼들 삭제하고 다시 저장
-    public void deleteListForUpdate(long studyId){
+//    public void deleteListForUpdate(long studyId){
+//
+//        Optional<Study> study = studyRepository.findById(studyId);
+//
+//        List<StudyCategory> studyCategory = studyCategoryRepository.findByStudy(study.get());
+//        List<StudyRequiredInfo> studyRequiredInfo = studyRequiredInfoRepository.findByStudy(study.get());
+//        List<StudyDesiredTime> studyDesiredTime = studyDesiredTimeRepository.findByStudy(study.get());
+//
+//        if(studyCategory != null) {
+//            for(int i =0; i< studyCategory.size(); i++){
+//                studyCategoryRepository.delete(studyCategory.get(i));
+//            }
+//        }
+//        if(studyRequiredInfo != null){
+//            for(int i =0; i< studyRequiredInfo.size(); i++){
+//                studyRequiredInfoRepository.delete(studyRequiredInfo.get(i));
+//            }
+//        }
+//        if(studyDesiredTime != null){
+//            for(int i =0; i< studyDesiredTime .size(); i++){
+//                studyDesiredTimeRepository.delete(studyDesiredTime.get(i));
+//            }
+//        }
+//    }
 
+    public void deleteCategories(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
-
         List<StudyCategory> studyCategory = studyCategoryRepository.findByStudy(study.get());
-        List<StudyRequiredInfo> studyRequiredInfo = studyRequiredInfoRepository.findByStudy(study.get());
-        List<StudyDesiredTime> studyDesiredTime = studyDesiredTimeRepository.findByStudy(study.get());
-
         if(studyCategory != null) {
             for(int i =0; i< studyCategory.size(); i++){
                 studyCategoryRepository.delete(studyCategory.get(i));
             }
         }
+    }
+
+    public void deleteRequiredInfo(long studyId){
+        Optional<Study> study = studyRepository.findById(studyId);
+
+        List<StudyRequiredInfo> studyRequiredInfo = studyRequiredInfoRepository.findByStudy(study.get());
         if(studyRequiredInfo != null){
             for(int i =0; i< studyRequiredInfo.size(); i++){
                 studyRequiredInfoRepository.delete(studyRequiredInfo.get(i));
             }
         }
+    }
+
+    public void deleteDesiredTime(long studyId){
+        Optional<Study> study = studyRepository.findById(studyId);
+
+        List<StudyDesiredTime> studyDesiredTime = studyDesiredTimeRepository.findByStudy(study.get());
         if(studyDesiredTime != null){
             for(int i =0; i< studyDesiredTime .size(); i++){
                 studyDesiredTimeRepository.delete(studyDesiredTime.get(i));
             }
         }
+
     }
 
     public void saveRequiredInfo(List<String> requiredInfoList, Study study) {
@@ -354,10 +390,9 @@ public class StudyService {
             study.get().addStudyFiles(studyFile);
 
             studyFileRepository.save(studyFile);
-            System.out.println(studyFile.getFilePath());
+//            System.out.println(studyFile.getFilePath());
         }
     }
-
 
     public String downloadFile(long studyFileId) {
         Optional<StudyFile> studyFile = studyFileRepository.findById(studyFileId);
@@ -374,16 +409,38 @@ public class StudyService {
         studyFileRepository.delete(studyFile.get());
     }
 
-    public void updateStudy(Long studyId, StudyCreateDto studyCreateDto) {
-      Optional<Study> study= studyRepository.findById(studyId);
-      study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
-      study.get().updateStudy(studyCreateDto);
-    }
+    public void updateStudy(Long studyId, StudyUpdateDto studyUpdateDto) {
 
-    public void updateStudyTest(Long studyId, StudyUpdateDto studyCreateDto) {
         Optional<Study> study= studyRepository.findById(studyId);
-        study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
-        study.get().updateStudyTest(studyCreateDto);
+
+      if(studyUpdateDto.getStudyName() == null){
+          studyUpdateDto.setStudyName(study.get().getStudyName());
+      }
+      if(studyUpdateDto.getDeadline() == null){
+          studyUpdateDto.setDeadline(study.get().getDeadline());
+      }
+      if(studyUpdateDto.getDescription() == null){
+          studyUpdateDto.setDescription(study.get().getDescription());
+      }
+      if(studyUpdateDto.getFormat() == null){
+          studyUpdateDto.setFormat(study.get().getFormat());
+      }
+      if(studyUpdateDto.getLevel() == null){
+          studyUpdateDto.setLevel(study.get().getLevel());
+      }
+      if(studyUpdateDto.getPeopleNum() == null){
+          studyUpdateDto.setPeopleNum(study.get().getPeopleNum());
+      }
+      if(studyUpdateDto.getLocation() == null){
+          studyUpdateDto.setLocation(study.get().getLocation());
+      }
+      if(studyUpdateDto.getPeriod() == null){
+          studyUpdateDto.setPeriod(study.get().getPeriod());
+      }
+      if(studyUpdateDto.getPeopleNum() != null){
+          study.get().setRemainNum(studyUpdateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
+      }
+      study.get().updateStudy(studyUpdateDto);
     }
 
     public void deleteStudyFileForUpdate(long studyId) {
@@ -391,6 +448,7 @@ public class StudyService {
         List<StudyFile> studyFile = studyFileRepository.findByStudy(study.get());
 
         for(int i=0; i<studyFile.size(); i++){
+            study.get().removeStudyFiles(studyFile.get(i));
             studyFileRepository.delete(studyFile.get(i));
         }
     }
