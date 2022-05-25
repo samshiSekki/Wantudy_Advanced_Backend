@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -196,62 +197,79 @@ public class StudyController {
 
 
     @ApiOperation("스터디 수정")
-    @PatchMapping(value="/{studyId}", consumes = {"multipart/form-data"})
-    public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @ModelAttribute StudyCreateDto studyCreateDto) throws IOException {
+    @PatchMapping(value="/{studyId}")
+    public EntityResponseDto updateStudy(@PathVariable("studyId") long studyId, @RequestBody StudyUpdateDto studyUpdateDto) throws IOException {
 
-        studyService.updateStudy(studyId, studyCreateDto);
+        studyService.updateStudy(studyId, studyUpdateDto);
 
         List<String> categories = new ArrayList<>();
         List<String> requiredInfoList = new ArrayList<>();
         List<String> desiredTimeList = new ArrayList<>();
 
-        for (int i = 0; i < studyCreateDto.getCategories().size(); i++) {
-            String category = studyCreateDto.getCategories().get(i);
+        for (int i = 0; i < studyUpdateDto.getCategories().size(); i++) {
+            String category = studyUpdateDto.getCategories().get(i);
             categories.add(category);
         }
 
-        for (int i = 0; i < studyCreateDto.getRequiredInfo().size(); i++) {
-            String requiredInfo = studyCreateDto.getRequiredInfo().get(i);
+        for (int i = 0; i < studyUpdateDto.getRequiredInfo().size(); i++) {
+            String requiredInfo = studyUpdateDto.getRequiredInfo().get(i);
             requiredInfoList.add(requiredInfo);
         }
 
-        for (int i = 0; i < studyCreateDto.getDesiredTime().size(); i++) {
-            String desiredTime = studyCreateDto.getDesiredTime().get(i);
+        for (int i = 0; i < studyUpdateDto.getDesiredTime().size(); i++) {
+            String desiredTime = studyUpdateDto.getDesiredTime().get(i);
             desiredTimeList.add(desiredTime);
         }
-
-        //버킷에서 파일 삭제
-        s3Service.deleteStudyAndFile(studyId);
-
-        //DB에서 파일과 연관관계 리스트 삭제
-        studyService.deleteStudyFileForUpdate(studyId);
-        studyService.deleteListForUpdate(studyId);
-
         Study study = studyService.findByStudyId(studyId);
 
-//        studyService.saveCategory(categories, study);
-        categoryService.saveCategory(categories, study, studyCreateDto.getParentCategory());
-
-        studyService.saveRequiredInfo(requiredInfoList,study);
-        studyService.saveDesiredTime(desiredTimeList,study);
-
-        //파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
-        for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
-
-            StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
-            String fileName = studyCreateDto.getMultipartFile().get(i).getOriginalFilename();
-
-            List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
-            List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
-            List<String> studyFileName = List.of(fileName);
-
-            studyService.updateStudyFiles(studyFilePath, studyFileName, s3FileName, studyId);
+        if(!categories.isEmpty()){
+            studyService.deleteCategories(studyId);
+            categoryService.saveCategory(categories, study, studyUpdateDto.getParentCategory());
+        }
+        if(!requiredInfoList.isEmpty()){
+            studyService.deleteRequiredInfo(studyId);
+            studyService.saveRequiredInfo(requiredInfoList,study);
+        }
+        if(!desiredTimeList.isEmpty()){
+            studyService.deleteDesiredTime(studyId);
+            studyService.saveDesiredTime(desiredTimeList,study);
         }
 
         StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
 
         return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
     }
+
+    @ApiOperation("스터디 파일 수정")
+    @PutMapping(value="/{studyId}/file")
+    public EntityResponseDto updateFile(@PathVariable("studyId") long studyId, @RequestPart List<MultipartFile> multipartFiles) throws IOException{
+        //버킷에서 파일 삭제
+        s3Service.deleteStudyAndFile(studyId);
+
+        //DB에서 파일 리스트 삭제
+        studyService.deleteStudyFileForUpdate(studyId);
+
+        //파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
+        for (int i = 0; i < multipartFiles.size(); i++) {
+
+            StudyFileUploadDto studyFileUploadDto = s3Service.upload(multipartFiles.get(i));
+            String fileName = multipartFiles.get(i).getOriginalFilename();
+
+            List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
+            List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
+            List<String> studyFileName = List.of(fileName);
+
+            System.out.println(multipartFiles.get(i).getName());
+
+            studyService.updateStudyFiles(studyFilePath, studyFileName, s3FileName, studyId);
+        }
+
+        Study study = studyService.findByStudyId(studyId);
+        StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
+
+        return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
+    }
+
 
 //    @ApiOperation("스터디 수정")
 //    @PatchMapping(value="update/{studyId}", consumes = {"multipart/form-data"})

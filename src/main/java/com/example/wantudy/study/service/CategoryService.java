@@ -45,7 +45,9 @@ public class CategoryService {
     public void saveCategory(List<String> categories, Study study, String parentCategory){
 
         Category parent = categoryRepository.findByCategoryName(parentCategory);
+
         StudyCategory existedCategoryParent = studyCategoryRepository.findByCategoryAndStudy(parent, study);
+
         StudyCategory studyCategoryParent = new StudyCategory();
 
         //1차 카테고리 studyCategory에 저장 X면 한 번만 저장
@@ -65,6 +67,7 @@ public class CategoryService {
             else {
                 Category category= new Category(categories.get(i));
                 categoryRepository.save(category);
+
                 category.setParent(parent);
                 parent.addChildCategory(category);
                 studyCategory.setCategory(category);
