@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
@@ -61,7 +60,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         @ApiModelProperty(value = " 페이지 번호 (0..N)")
         private Integer page;
 
-        @ApiModelProperty(value = "정렬컬럼,정렬방식(desc,asc)")
+        @ApiModelProperty(value = "정렬 기준 컬럼", example = "createAt,DESC")
         private String sort;
     }
 
