@@ -380,11 +380,11 @@ public class StudyService {
       study.get().updateStudy(studyCreateDto);
     }
 
-    public void updateStudyTest(Long studyId, StudyUpdateDto studyCreateDto) {
-        Optional<Study> study= studyRepository.findById(studyId);
-        study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
-        study.get().updateStudyTest(studyCreateDto);
-    }
+//    public void updateStudyTest(Long studyId, StudyUpdateDto studyCreateDto) {
+//        Optional<Study> study= studyRepository.findById(studyId);
+//        study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
+//        study.get().updateStudyTest(studyCreateDto);
+//    }
 
     public void deleteStudyFileForUpdate(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);

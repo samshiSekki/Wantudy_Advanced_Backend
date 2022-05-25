@@ -3,7 +3,6 @@ package com.example.wantudy.study;
 import com.example.wantudy.oauth.User;
 import com.example.wantudy.study.domain.*;
 import com.example.wantudy.study.dto.StudyCreateDto;
-import com.example.wantudy.users.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -131,15 +130,15 @@ public class Study {
         this.peopleNum = studyCreateDto.getPeopleNum();
         this.deadline = studyCreateDto.getDeadline();
     }
-    public void updateStudyTest(StudyUpdateDto studyCreateDto){
-        this.studyName = studyCreateDto.getStudyName();
-        this.description = studyCreateDto.getDescription();
-        this.level = studyCreateDto.getLevel();
-        this.format = studyCreateDto.getFormat();
-        this.location = studyCreateDto.getLocation();
-        this.period = studyCreateDto.getPeriod();
-        this.peopleNum = studyCreateDto.getPeopleNum();
-        this.deadline = studyCreateDto.getDeadline();
-    }
 
+//    public void updateStudyTest(StudyUpdateDto studyCreateDto){
+//        this.studyName = studyCreateDto.getStudyName();
+//        this.description = studyCreateDto.getDescription();
+//        this.level = studyCreateDto.getLevel();
+//        this.format = studyCreateDto.getFormat();
+//        this.location = studyCreateDto.getLocation();
+//        this.period = studyCreateDto.getPeriod();
+//        this.peopleNum = studyCreateDto.getPeopleNum();
+//        this.deadline = studyCreateDto.getDeadline();
+//    }
 }
