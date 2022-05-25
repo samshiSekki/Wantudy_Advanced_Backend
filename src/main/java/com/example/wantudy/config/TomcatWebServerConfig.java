@@ -1,4 +1,4 @@
-package com.example.wantudy.config;
+    package com.example.wantudy.config;
 
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;

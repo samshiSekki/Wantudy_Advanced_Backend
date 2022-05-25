@@ -12,4 +12,5 @@ import java.util.List;
 public interface StudyCategoryRepository extends JpaRepository<StudyCategory, Long> {
     List<StudyCategory> findByStudy(Study study);
     StudyCategory findByCategoryAndStudy(Category category, Study study);
+    List<StudyCategory>  findByCategory(Category category);
 }
