@@ -1,14 +1,10 @@
 package com.example.wantudy.study.repository;
 
 import com.example.wantudy.study.Study;
-import com.example.wantudy.study.domain.Category;
-import com.example.wantudy.study.domain.StudyCategory;
 import com.example.wantudy.study.domain.StudyStatus;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
-import java.util.List;
 
 public class StudySpec {
 

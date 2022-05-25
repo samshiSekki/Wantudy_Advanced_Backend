@@ -3,19 +3,17 @@ package com.example.wantudy.study;
 import com.example.wantudy.study.domain.*;
 import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.repository.*;
-import com.example.wantudy.study.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,10 +32,6 @@ public class StudyService {
 
     private final StudyFileRepository studyFileRepository;
 
-//    private final AwsS3Service s3Service;
-
-
-
 
     public Study findByStudyId(long studyId) {
         Optional<Study> study = studyRepository.findById(studyId);
@@ -45,10 +39,8 @@ public class StudyService {
     }
 
 
-    public Page<StudyAllResponseDto> getAllStudy(Pageable pageable) {
-        Page<Study> studies = studyRepository.findAll(pageable);
-
-        //DTO로 변환
+    public Page<StudyAllResponseDto> getSearch(String studyName, String location, StudyStatus status, Pageable pageable) {
+        Page<Study> studies = studyRepository.findBySearchOption(pageable, studyName, location, status);
         Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
 
         //카테고리 리스트 채워주기
@@ -58,6 +50,75 @@ public class StudyService {
 
         return pageDto;
     }
+
+    public Page<StudyAllResponseDto> getStudies(String studyName, String location, StudyStatus status, String category, Pageable pageable) {
+
+        Page<Study> studies = studyRepository.findBySearchOption(pageable, studyName, location, status);
+
+        //카테고리 파라미터 없으면 찾은거 그대로 보내줌
+        if(category == null){
+
+            Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
+
+            //카테고리 리스트 채워주기
+            for (int i = 0; i < studies.getContent().size(); i++) {
+                pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
+            }
+            return pageDto;
+        }
+
+        //찾은거에서 카테고리로 한번 더 필터링
+        else{
+
+            List<String> categories = Arrays.asList(category.split(","));
+
+            //순회하면서 찾을 전체 스터디
+            List<Study> search = studies.getContent();
+
+            List<Study> result = new ArrayList<>();
+
+            for(int i=0; i<search.size(); i++) {
+
+                Optional<Study> study = studyRepository.findById(search.get(i).getStudyId());
+                List<String> studyCategories = this.getCategory(study.get());
+
+                List<String> containCategory = studyCategories.stream()
+                        .filter(element -> listContains(categories, element))
+                        .collect(Collectors.toList());
+
+                //필터로 들어온 카테고리를 다 포함해야 함
+                if(!containCategory.isEmpty() && containCategory.size() == categories.size()){
+                    result.add(search.get(i));
+                }
+            }
+
+            final int start = (int)pageable.getOffset();
+            final int end = Math.min((start + pageable.getPageSize()), result.size());
+
+            final Page<Study> page = new PageImpl<>(result.subList(start, end), pageable, result.size());
+            Page<StudyAllResponseDto> pageDto = page.map(StudyAllResponseDto::from);
+
+            //카테고리 리스트 채워주기
+            for (int i = 0; i < pageDto.getContent().size(); i++) {
+                pageDto.getContent().get(i).setCategories(this.getCategory(page.getContent().get(i)));
+            }
+            return pageDto;
+        }
+    }
+
+//    public Page<StudyAllResponseDto> getAllStudy(Pageable pageable) {
+//        Page<Study> studies = studyRepository.findAll(pageable);
+//
+//        //DTO로 변환
+//        Page<StudyAllResponseDto> pageDto = studies.map(StudyAllResponseDto::from);
+//
+//        //카테고리 리스트 채워주기
+//        for (int i = 0; i < studies.getContent().size(); i++) {
+//            pageDto.getContent().get(i).setCategories(this.getCategory(studies.getContent().get(i)));
+//        }
+//
+//        return pageDto;
+//    }
 
     public Page<StudyAllResponseDto> getStudySearch(Specification<Study> filter, Pageable pageable) {
         Page<Study> studies = studyRepository.findAll(filter, pageable);
@@ -73,6 +134,45 @@ public class StudyService {
         return pageDto;
     }
 
+    public Page<StudyAllResponseDto> getStudyByCategory(String category, Pageable pageable){
+
+        List<String> categories = Arrays.asList(category.split(","));
+        List<Study> studies = studyRepository.findAll(pageable).getContent();
+        List<Study> result = new ArrayList<>();
+
+        for(int i=0; i<studies.size(); i++) {
+
+            Optional<Study> study = studyRepository.findById(studies.get(i).getStudyId());
+            List<String> studyCategories = this.getCategory(study.get());
+
+            List<String> containCategory = studyCategories.stream()
+                    .filter(element -> listContains(categories, element))
+                    .collect(Collectors.toList());
+
+            //필터로 들어온 카테고리를 다 포함해야 함
+            if(!containCategory.isEmpty() && containCategory.size() == categories.size()){
+                result.add(studies.get(i));
+            }
+        }
+
+        final int start = (int)pageable.getOffset();
+        final int end = Math.min((start + pageable.getPageSize()), result.size());
+
+        final Page<Study> page = new PageImpl<>(result.subList(start, end), pageable, result.size());
+        Page<StudyAllResponseDto> pageDto = page.map(StudyAllResponseDto::from);
+
+        //카테고리 리스트 채워주기
+        for (int i = 0; i < pageDto.getContent().size(); i++) {
+            pageDto.getContent().get(i).setCategories(this.getCategory(page.getContent().get(i)));
+        }
+        return pageDto;
+    }
+
+    public static <T> boolean listContains(List<T> array, T element) {
+        return array.stream()
+                .filter(e -> e.equals(element))
+                .findFirst().isPresent();
+    }
 
     public StudyDetailResponseDto getOneStudy(Study study) {
         StudyDetailResponseDto studyDetailResponseDto = StudyDetailResponseDto.from(study);
@@ -142,24 +242,24 @@ public class StudyService {
 //        return studyRepository.save(saveStudy);
 //    }
 
-    public void saveCategory(List<String> categories, Study study){
-
-        for (int i = 0; i < categories.size(); i++){
-            Optional<Category> existedCategory = Optional.ofNullable(categoryRepository.findByCategoryName(categories.get(i)));
-            StudyCategory studyCategory = new StudyCategory();
-
-            if(existedCategory.isPresent()) {
-                studyCategory.setCategory(existedCategory.get());
-            }
-            else {
-                Category category= new Category(categories.get(i));
-                categoryRepository.save(category);
-                studyCategory.setCategory(category);
-            }
-            studyCategory.setStudy(study);
-            studyCategoryRepository.save(studyCategory);
-        }
-    }
+//    public void saveCategory(List<String> categories, Study study){
+//
+//        for (int i = 0; i < categories.size(); i++){
+//            Optional<Category> existedCategory = Optional.ofNullable(categoryRepository.findByCategoryName(categories.get(i)));
+//            StudyCategory studyCategory = new StudyCategory();
+//
+//            if(existedCategory.isPresent()) {
+//                studyCategory.setCategory(existedCategory.get());
+//            }
+//            else {
+//                Category category= new Category(categories.get(i));
+//                categoryRepository.save(category);
+//                studyCategory.setCategory(category);
+//            }
+//            studyCategory.setStudy(study);
+//            studyCategoryRepository.save(studyCategory);
+//        }
+//    }
 
     //업데이트 시 원래 매핑되어 있던 연관관계 칼럼들 삭제하고 다시 저장
     public void deleteListForUpdate(long studyId){
@@ -278,6 +378,12 @@ public class StudyService {
       Optional<Study> study= studyRepository.findById(studyId);
       study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
       study.get().updateStudy(studyCreateDto);
+    }
+
+    public void updateStudyTest(Long studyId, StudyUpdateDto studyCreateDto) {
+        Optional<Study> study= studyRepository.findById(studyId);
+        study.get().setRemainNum(studyCreateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
+        study.get().updateStudyTest(studyCreateDto);
     }
 
     public void deleteStudyFileForUpdate(long studyId) {

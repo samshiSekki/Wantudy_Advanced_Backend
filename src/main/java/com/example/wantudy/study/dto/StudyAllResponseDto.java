@@ -58,4 +58,23 @@ public class StudyAllResponseDto {
                     .studyStatus(study.getStudyStatus())
                     .build();
         }
+
+//    public StudyAllResponseDto(Study study) {
+//        this.studyId = study.getStudyId();
+//        this.studyName = study.getStudyName();
+//        this.level = study.getLevel();
+//        this.format = study.getFormat();
+//        this.location = study.getLocation();
+//        this.period = study.getPeriod();
+//        this.peopleNum = study.getPeopleNum();
+//        this.currentNum = study.getCurrentNum();
+//        this.remainNum = study.getRemainNum();
+//        this.likeNum = study.getLikeNum();
+//        this.deadline = study.getDeadline();
+//        this.createAt = study.getCreateAt();
+//        this.studyStatus = study.getStudyStatus();
+//        this.categories = study.getCategories().stream()
+//                .map(studyCategory -> studyCategory.getCategory().getCategoryName())
+//                .collect(Collectors.toList());
+//    }
 }

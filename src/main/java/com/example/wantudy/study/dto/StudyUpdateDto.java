@@ -1,11 +1,9 @@
 package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -16,9 +14,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class StudyUpdateDto {
-
-    @ApiModelProperty(value = "studyId", required = true)
-    private long studyId;
 
     @ApiModelProperty(value = "스터디 파일", required = false)
     private List<MultipartFile> multipartFile = new ArrayList<>();

@@ -27,6 +27,11 @@ public class CategoryService {
         return all.stream().map(CategoryDto::new).collect(Collectors.toList());
     }
 
+    public Category findCategory(String categoryName){
+        Category category = categoryRepository.findByCategoryName(categoryName);
+        return category;
+    }
+
     public Category findParent(String parentCategory) {
         Category parent = categoryRepository.findByCategoryName(parentCategory);
         return parent;
@@ -40,9 +45,7 @@ public class CategoryService {
     public void saveCategory(List<String> categories, Study study, String parentCategory){
 
         Category parent = categoryRepository.findByCategoryName(parentCategory);
-
         StudyCategory existedCategoryParent = studyCategoryRepository.findByCategoryAndStudy(parent, study);
-
         StudyCategory studyCategoryParent = new StudyCategory();
 
         //1차 카테고리 studyCategory에 저장 X면 한 번만 저장
@@ -70,5 +73,4 @@ public class CategoryService {
             studyCategoryRepository.save(studyCategory);
         }
     }
-
 }
