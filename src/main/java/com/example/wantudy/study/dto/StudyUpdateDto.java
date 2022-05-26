@@ -30,7 +30,7 @@ public class StudyUpdateDto {
     @ApiModelProperty(value = "스터디 형식", required = false, example = "다함께 공부")
     private String format;
 
-    @ApiModelProperty(value = "스터디 진행 위치", required = false, example = "마포구")
+    @ApiModelProperty(value = "스터디 진행 위치(온라인일 경우 온라인)", required = false, example = "마포구")
     private String location;
 
     @ApiModelProperty(value = "스터디 기간", required = false, example = "6개월")

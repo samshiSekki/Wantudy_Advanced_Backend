@@ -74,7 +74,7 @@ public class StudyController {
             "정렬 컬럼 : createAt, remainNum, likeNum, deadline" + "정렬 기준 : desc,asc")
     @ApiImplicitParam(name="category", value = "category1,category2")
     @GetMapping("")
-    public EntityResponseDto getStudies(
+    public EntityResponseDto.getStudyAllResponseDto getStudies(
                            @RequestParam(required = false) String studyName,
                            @RequestParam(required = false) String location,
                            @RequestParam(required = false) StudyStatus status,
@@ -85,14 +85,14 @@ public class StudyController {
         Page<StudyAllResponseDto> responseData = studyService.getStudies(studyName, location, status, category, pageable);
 
         if(!CollectionUtils.isEmpty(responseData.getContent()))
-            return new EntityResponseDto(200, "스터디 조회 성공", responseData);
+            return new EntityResponseDto.getStudyAllResponseDto(200, "스터디 조회 성공", responseData.getContent(), responseData.getPageable(), responseData.getTotalPages(), responseData.getTotalElements());
 
-        return new EntityResponseDto(404, "검색 결과가 없습니다.", null);
+        return new EntityResponseDto.getStudyAllResponseDto(404, "검색 결과가 없습니다.", responseData.getContent(), responseData.getPageable(), responseData.getTotalPages(), responseData.getTotalElements());
 }
 
     @ApiOperation(value = "스터디 개설", notes = "스터디 개설 엔드 포인트, file 안 보낼 때 Send empty value 체크 XXX")
     @PostMapping(consumes = {"multipart/form-data"})
-    public EntityResponseDto createStudy(@ModelAttribute StudyCreateDto studyCreateDto) throws Exception{
+    public EntityResponseDto.getStudyOneResponseDto createStudy(@ModelAttribute StudyCreateDto studyCreateDto) throws Exception{
 
         Study study = new Study(studyCreateDto.getStudyName(), studyCreateDto.getDescription(), studyCreateDto.getLevel(),
                 studyCreateDto.getFormat(), studyCreateDto.getLocation(), studyCreateDto.getPeriod(), studyCreateDto.getPeopleNum(),
@@ -147,7 +147,7 @@ public class StudyController {
 
         StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
 
-        return new EntityResponseDto(201, "스터디 등록", studyDetailResponseDto);
+        return new EntityResponseDto.getStudyOneResponseDto(201, "스터디 등록", studyDetailResponseDto);
     }
 
 //    @ApiOperation("스터디 조회(전체 조회, 검색 필터)")
@@ -187,12 +187,12 @@ public class StudyController {
 
     @ApiOperation("스터디 상세 조회")
     @GetMapping("/{studyId}")
-    public EntityResponseDto getOneStudy(@ApiParam(value="스터디 ID", required = true) @PathVariable("studyId") long studyId) {
+    public EntityResponseDto.getStudyOneResponseDto getOneStudy(@ApiParam(value="스터디 ID", required = true) @PathVariable("studyId") long studyId) {
 
         Study study = studyService.findByStudyId(studyId);
         StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
 
-        return new EntityResponseDto(200, "스터디 상세 페이지 조회", studyDetailResponseDto);
+        return new EntityResponseDto.getStudyOneResponseDto(200, "스터디 상세 페이지 조회", studyDetailResponseDto);
     }
 
 
