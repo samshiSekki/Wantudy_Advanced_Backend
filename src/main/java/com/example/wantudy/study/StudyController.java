@@ -27,7 +27,7 @@ import java.util.List;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
-@RequestMapping("/api/study")
+@RequestMapping("/study")
 @RequiredArgsConstructor
 public class StudyController {
 
