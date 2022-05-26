@@ -1,14 +1,22 @@
 package com.example.wantudy.study.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ApiModel
 public class StudyFileDto {
 
+    @ApiModelProperty(value = "파일 id")
     private Long studyFileId;
+
+    @ApiModelProperty(value = "파일 이름")
     private String fileName;
+
+    @ApiModelProperty(value = "파일 저장 경로")
     private String filePath;
 
     @Getter
