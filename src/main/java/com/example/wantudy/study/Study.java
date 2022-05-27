@@ -46,6 +46,10 @@ public class Study {
     @Column(name = "study_file")
     private List<StudyFile> studyFiles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "comments")
+    private List<Comment> comments = new ArrayList<>();
+
     @Column(name = "fixed_study_schedule")
     private String fixedStudySchedule;
 
@@ -128,6 +132,11 @@ public class Study {
         this.studyFiles.remove(studyFile);
     }
 
+    public void addComments(Comment comment){
+        this.comments.add(comment);
+    }
+
+    // -- 수정 메서드 -- //
     public void updateStudy(StudyUpdateDto studyUpdateDto){
         this.studyName = studyUpdateDto.getStudyName();
         this.description = studyUpdateDto.getDescription();

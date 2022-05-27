@@ -13,6 +13,9 @@ public class StudyFileDto {
     @ApiModelProperty(value = "파일 id")
     private Long studyFileId;
 
+    @ApiModelProperty(value = "등록된 스터디 id")
+    private Long studyId;
+
     @ApiModelProperty(value = "파일 이름")
     private String fileName;
 

@@ -1,6 +1,7 @@
 package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
+import com.example.wantudy.study.domain.Comment;
 import com.example.wantudy.study.domain.StudyStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -78,6 +79,9 @@ public class StudyDetailResponseDto {
 
     @ApiModelProperty(value = "스터디 계획서 파일")
     private List<StudyFileDto> studyFiles;
+
+    @ApiModelProperty(value = "댓글")
+    private List<CommentResponseDto> comments;
 
 
     //리스트는 따로 받아오기

@@ -9,8 +9,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -32,6 +30,8 @@ public class StudyService {
     private final StudyDesiredTimeRepository studyDesiredTimeRepository;
 
     private final StudyFileRepository studyFileRepository;
+
+    private final CommentRepository commentRepository;
 
 
     public Study findByStudyId(long studyId) {
@@ -171,8 +171,7 @@ public class StudyService {
 
     public static <T> boolean listContains(List<T> array, T element) {
         return array.stream()
-                .filter(e -> e.equals(element))
-                .findFirst().isPresent();
+                .anyMatch(e -> e.equals(element));
     }
 
     public StudyDetailResponseDto getOneStudy(Study study) {
@@ -183,9 +182,18 @@ public class StudyService {
         studyDetailResponseDto.setDesiredTime(this.getDesiredTime(study));
         studyDetailResponseDto.setRequiredInfo(this.getRequiredInfo(study));
         studyDetailResponseDto.setStudyFiles(this.getStudyFiles(study));
+        studyDetailResponseDto.setComments(this.getComments(study));
 
         return studyDetailResponseDto;
     }
+
+    private List<CommentResponseDto> getComments(Study studyComment) {
+        Optional<Study> study = studyRepository.findById(studyComment.getStudyId());
+
+        List<CommentResponseDto> comments = commentRepository.findCommentByStudyId(studyComment.getStudyId());
+        return comments;
+    }
+
 
     public List<StudyFileDto> getStudyFiles(Study fileStudy){
         Optional<Study> study = studyRepository.findById(fileStudy.getStudyId());
@@ -207,10 +215,10 @@ public class StudyService {
         Optional<Study> study = studyRepository.findById(categoryStudy.getStudyId());
         List<String> categories = new ArrayList<>();
         List<StudyCategory> studyCategories = studyCategoryRepository.findByStudy(study.get());
-        System.out.println(studyCategories.get(0));
+
         for(int i=0;i<studyCategories .size();i++)
             categories.add(studyCategories.get(i).getCategory().getCategoryName());
-            System.out.println(categories);
+
         return categories;
     }
 
