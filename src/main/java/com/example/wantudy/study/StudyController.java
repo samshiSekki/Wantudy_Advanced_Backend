@@ -95,7 +95,7 @@ public class StudyController {
     public EntityResponseDto.getStudyOneResponseDto createStudy(@ModelAttribute StudyCreateDto studyCreateDto) throws Exception{
 
         Study study = new Study(studyCreateDto.getStudyName(), studyCreateDto.getDescription(), studyCreateDto.getLevel(),
-                studyCreateDto.getFormat(), studyCreateDto.getLocation(), studyCreateDto.getPeriod(), studyCreateDto.getPeopleNum(),
+                studyCreateDto.getFormat(), studyCreateDto.getOnOff(), studyCreateDto.getLocation(), studyCreateDto.getPeriod(), studyCreateDto.getPeopleNum(),
                 studyCreateDto.getDeadline()); // DTO에서 리스트 제외한 필드 가져와서 스터디 객체 만듦
 
         if(!CollectionUtils.isEmpty(studyCreateDto.getMultipartFile())) {
@@ -269,65 +269,6 @@ public class StudyController {
 
         return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
     }
-
-
-//    @ApiOperation("스터디 수정")
-//    @PatchMapping(value="update/{studyId}", consumes = {"multipart/form-data"})
-//    public EntityResponseDto updateTEST(@PathVariable("studyId") long studyId, StudyUpdateDto studyCreateDto) throws IOException {
-//
-//        studyService.updateStudyTest(studyId, studyCreateDto);
-//
-//        List<String> categories = new ArrayList<>();
-//        List<String> requiredInfoList = new ArrayList<>();
-//        List<String> desiredTimeList = new ArrayList<>();
-//
-//        for (int i = 0; i < studyCreateDto.getCategories().size(); i++) {
-//            String category = studyCreateDto.getCategories().get(i);
-//            categories.add(category);
-//        }
-//
-//        for (int i = 0; i < studyCreateDto.getRequiredInfo().size(); i++) {
-//            String requiredInfo = studyCreateDto.getRequiredInfo().get(i);
-//            requiredInfoList.add(requiredInfo);
-//        }
-//
-//        for (int i = 0; i < studyCreateDto.getDesiredTime().size(); i++) {
-//            String desiredTime = studyCreateDto.getDesiredTime().get(i);
-//            desiredTimeList.add(desiredTime);
-//        }
-//
-//        //버킷에서 파일 삭제
-//        s3Service.deleteStudyAndFile(studyId);
-//
-//        //DB에서 파일과 연관관계 리스트 삭제
-//        studyService.deleteStudyFileForUpdate(studyId);
-//        studyService.deleteListForUpdate(studyId);
-//
-//        Study study = studyService.findByStudyId(studyId);
-//
-////        studyService.saveCategory(categories, study);
-//        categoryService.saveCategory(categories, study, studyCreateDto.getParentCategory());
-//
-//        studyService.saveRequiredInfo(requiredInfoList,study);
-//        studyService.saveDesiredTime(desiredTimeList,study);
-//
-//        //파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
-//        for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
-//
-//            StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
-//            String fileName = studyCreateDto.getMultipartFile().get(i).getOriginalFilename();
-//
-//            List<String> studyFilePath = List.of(studyFileUploadDto.getFilepath());
-//            List<String> s3FileName = List.of(studyFileUploadDto.getS3FileName());
-//            List<String> studyFileName = List.of(fileName);
-//
-//            studyService.updateStudyFiles(studyFilePath, studyFileName, s3FileName, studyId);
-//        }
-//
-//        StudyDetailResponseDto studyDetailResponseDto = studyService.getOneStudy(study);
-//
-//        return new EntityResponseDto(200, "스터디 수정", studyDetailResponseDto);
-//    }
 
     @ApiOperation("스터디 삭제")
     @DeleteMapping("/{studyId}")

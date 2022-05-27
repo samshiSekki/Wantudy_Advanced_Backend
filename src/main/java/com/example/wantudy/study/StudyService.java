@@ -390,7 +390,6 @@ public class StudyService {
             study.get().addStudyFiles(studyFile);
 
             studyFileRepository.save(studyFile);
-//            System.out.println(studyFile.getFilePath());
         }
     }
 
@@ -436,6 +435,9 @@ public class StudyService {
       }
       if(studyUpdateDto.getPeriod() == null){
           studyUpdateDto.setPeriod(study.get().getPeriod());
+      }
+      if(studyUpdateDto.getOnOff() == null){
+            studyUpdateDto.setOnOff(study.get().getOnOff());
       }
       if(studyUpdateDto.getPeopleNum() != null){
           study.get().setRemainNum(studyUpdateDto.getPeopleNum().intValue() - study.get().getCurrentNum().intValue());
