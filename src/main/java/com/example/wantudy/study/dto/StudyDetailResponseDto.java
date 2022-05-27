@@ -32,7 +32,10 @@ public class StudyDetailResponseDto {
     @ApiModelProperty(value = "스터디 형식", example = "다함께 공부")
     private String format;
 
-    @ApiModelProperty(value = "스터디 진행 위치(온라인일 경우 온라인)", example = "마포구")
+    @ApiModelProperty(value="스터디 온오프 여부", example = "오프라인")
+    private String onOff;
+
+    @ApiModelProperty(value = "스터디 진행 위치", example = "서울 특별시 마포구")
     private String location;
 
     @ApiModelProperty(value = "스터디 기간",  example = "6개월")
@@ -85,6 +88,7 @@ public class StudyDetailResponseDto {
                 .description(study.getDescription())
                 .level(study.getLevel())
                 .format(study.getFormat())
+                .onOff(study.getOnOff())
                 .location(study.getLocation())
                 .period(study.getPeriod())
                 .fixedStudySchedule(study.getFixedStudySchedule())

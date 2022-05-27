@@ -33,7 +33,10 @@ public class StudyCreateDto {
     @ApiModelProperty(value="스터디 형식", required = true, example = "다함께 공부")
     private String format;
 
-    @ApiModelProperty(value="스터디 진행 위치", required = true, example = "마포구")
+    @ApiModelProperty(value="스터디 온오프 여부", required = true, example = "오프라인")
+    private String onOff;
+
+    @ApiModelProperty(value="스터디 진행 위치", required = false, example = "서울 특별시 마포구")
     private String location;
 
     @ApiModelProperty(value="스터디 기간", required = true, example = "6개월")
@@ -66,6 +69,7 @@ public class StudyCreateDto {
                 .description(description)
                 .level(level)
                 .format(format)
+                .onOff(onOff)
                 .location(location)
                 .period(period)
                 .peopleNum(peopleNum)

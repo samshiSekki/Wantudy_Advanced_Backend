@@ -61,6 +61,9 @@ public class Study {
     @Column(name = "format")
     private String format;
 
+    @Column(name = "on_off")
+    private String onOff;
+
     @Column(name = "location")
     private String location;
 
@@ -98,11 +101,12 @@ public class Study {
     }
 
     @Builder
-    public Study(String studyName, String description, String level, String format, String location, String period, Integer peopleNum, LocalDate deadline) {
+    public Study(String studyName, String description, String level, String format, String onOff, String location, String period, Integer peopleNum, LocalDate deadline) {
         this.studyName = studyName;
         this.description = description;
         this.level = level;
         this.format = format;
+        this.onOff = onOff;
         this.location = location;
         this.period = period;
         this.peopleNum = peopleNum;
