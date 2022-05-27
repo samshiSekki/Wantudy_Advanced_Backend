@@ -1,10 +1,12 @@
 package com.example.wantudy.study;
 
 import com.example.wantudy.study.domain.Category;
+import com.example.wantudy.study.domain.Comment;
 import com.example.wantudy.study.domain.StudyStatus;
 import com.example.wantudy.study.dto.*;
 import com.example.wantudy.study.service.AwsS3Service;
 import com.example.wantudy.study.service.CategoryService;
+import com.example.wantudy.study.service.CommentService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -34,6 +37,7 @@ public class StudyController {
     private final StudyService studyService;
     private final AwsS3Service s3Service;
     private final CategoryService categoryService;
+    private final CommentService commentService;
 
 //    @ApiOperation("스터디 전체 조회")
 //    @GetMapping("")
@@ -90,6 +94,33 @@ public class StudyController {
         return new EntityResponseDto.getStudyAllResponseDto(404, "검색 결과가 없습니다.", responseData.getContent(), responseData.getPageable(), responseData.getTotalPages(), responseData.getTotalElements());
 }
 
+    @ApiOperation("댓글 작성")
+    @PostMapping("/{studyId}/comment")
+    public EntityResponseDto.messageResponse createComment(@PathVariable("studyId") long studyId, @RequestBody CommentRequestDto commentRequestDto){
+
+        commentService.saveCommentParent(studyId, commentRequestDto);
+
+        return new EntityResponseDto.messageResponse(201, "댓글 작성 성공");
+
+    }
+
+    @ApiOperation("대댓글 작성")
+    @PostMapping("/{studyId}/{commentId}/comment")
+    public EntityResponseDto.messageResponse createChildComment(@PathVariable("studyId") long studyId, @PathVariable("commentId")long commentId, @RequestBody CommentRequestDto commentRequestDto){
+
+        Optional<Comment> comment = commentService.findCommentById(commentId);
+
+        if(comment.isEmpty()){
+            return new EntityResponseDto.messageResponse(400, "존재 하지 않는 댓글입니다.");
+        }
+        if(comment.get().getParent() != null ){
+            return new EntityResponseDto.messageResponse(400, "부모 댓글이 아닙니다.");
+        }
+
+        commentService.saveCommentChild(studyId, commentId, commentRequestDto);
+        return new EntityResponseDto.messageResponse(201, "댓글 작성 성공");
+    }
+
     @ApiOperation(value = "스터디 개설", notes = "스터디 개설 엔드 포인트, file 안 보낼 때 Send empty value 체크 XXX")
     @PostMapping(consumes = {"multipart/form-data"})
     public EntityResponseDto.getStudyOneResponseDto createStudy(@ModelAttribute StudyCreateDto studyCreateDto) throws Exception{
@@ -99,7 +130,7 @@ public class StudyController {
                 studyCreateDto.getDeadline()); // DTO에서 리스트 제외한 필드 가져와서 스터디 객체 만듦
 
         if(!CollectionUtils.isEmpty(studyCreateDto.getMultipartFile())) {
-            //파일이 존재한다면 파일 수 만큼 for문 돌리면서 StudyFile 객체들의 리스트 생성해줌
+            //파일이 존재한다면 파일 수 만큼 for문 돌리면ㅈ서 StudyFile 객체들의 리스트 생성해줌
             for (int i = 0; i < studyCreateDto.getMultipartFile().size(); i++) {
 
                 StudyFileUploadDto studyFileUploadDto = s3Service.upload(studyCreateDto.getMultipartFile().get(i));
@@ -302,4 +333,6 @@ public class StudyController {
         studyService.deleteStudyFile(studyFileId);
         return new EntityResponseDto.messageResponse(204, "파일 삭제 완료");
     }
+
+
 }
