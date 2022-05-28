@@ -43,7 +43,9 @@ public class ApplicationController {
     }
 
 //    @PatchMapping("/{applicationId}") // 지원서 수정
-//    public ResponseEntity<ResponseMessage> updateeApplication(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewPostDto reviewUpdateDto) {
+//    public ResponseEntity<ResponseMessage> updateApplication(@PathVariable("applicationId") Long applicationId, @RequestBody ReviewPostDto reviewUpdateDto) {
+//        User user = userService.findByEmail("test@naver.com");
+//        applicationService.updateApplication(user, appli)
 //        Review review = reviewService.findByReviewId(reviewId);
 //        if(review != null) {
 //            reviewService.updateReview(reviewUpdateDto, review);
@@ -51,21 +53,19 @@ public class ApplicationController {
 //        }
 //        return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
 //    }
-//
-//    @DeleteMapping("/{applicationId}") // 지원서 삭제
-//    public ResponseEntity<ResponseMessage> deleteReview(@PathVariable("reviewId") Long reviewId, Principal principal) {
+
+    @DeleteMapping("/{applicationId}") // 지원서 삭제
+    public ResponseEntity<ResponseMessage> deleteApplication(@PathVariable("applicationId") Long applicationId, Principal principal) {
 //        String email = principal.getName();
 //        User user = userDetailsService.findUserByEmail(email);
-//        Review review = reviewService.findByReviewId(reviewId);
-//        if(review != null) {
-//            reviewService.deleteReview(reviewId);
-//            List<Review> reviews = reviewService.findAllReviewsByUser(user);
-//            if(reviews.size() == 0) { // 삭제하고 나서 리뷰가 더이상 없는 경우 writeStatus 바꿔주기
-//                user.updateReviewStatus();
-//            }
-//            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(new ResponseMessage(200, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
-//    }
+        User user = userService.findByEmail("test@naver.com");
+        Application application = applicationService.findByApplicationId(applicationId);
+        System.out.println("application.getApplicationName() = " + application.getApplicationName());
+        if(application == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 지원서"), HttpStatus.NOT_FOUND);
+        applicationService.deleteApplication(application);
+        return new ResponseEntity<>(new ResponseMessage(200, "지원서 삭제 완료"), HttpStatus.OK);
+    }
+
 
 }

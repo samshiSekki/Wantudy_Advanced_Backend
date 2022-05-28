@@ -2,9 +2,7 @@ package com.example.wantudy.application.domain;
 
 import com.example.wantudy.study.domain.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,6 +11,8 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="applicationKeyword")
 public class ApplicationKeyword {
     @Id

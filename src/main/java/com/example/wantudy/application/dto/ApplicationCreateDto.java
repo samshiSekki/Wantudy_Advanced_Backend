@@ -3,11 +3,11 @@ package com.example.wantudy.application.dto;
 import com.example.wantudy.application.domain.Application;
 import com.example.wantudy.application.domain.Attendance;
 import com.example.wantudy.application.domain.Gender;
-import com.example.wantudy.application.domain.Keyword;
 import com.example.wantudy.oauth.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class ApplicationCreateDto {
     private String applicationName;
 
     @ApiModelProperty(value = "성별", required = false, example = "MALE")
-    private Gender gender;
+    private String gender;
 
     @ApiModelProperty(value = "나이", required = false, example = "20")
     private Integer age;
@@ -32,7 +32,7 @@ public class ApplicationCreateDto {
     private String major;
 
     @ApiModelProperty(value = "재학 여부", required = false, example = "재학")
-    private Attendance attendance;
+    private String attendance;
 
     @ApiModelProperty(value = "학기", required = false, example = "2-1학기")
     private String semester;
@@ -46,12 +46,12 @@ public class ApplicationCreateDto {
     @ApiModelProperty(value = "자신을 표현하는 키워드", required = false, example = "['꼼꼼한', '성실한']")
     private List<String> keywords = new ArrayList<>();
 
-    public Application toEntity(User user){
+    public Application toEntity(User user, Gender gender, Attendance attendance){
         return Application
                 .builder()
                 .user(user)
-                .applicationName(applicationName)
                 .gender(gender)
+                .applicationName(applicationName)
                 .age(age)
                 .organization(organization)
                 .major(major)

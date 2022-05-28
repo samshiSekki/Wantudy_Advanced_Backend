@@ -4,5 +4,4 @@ import com.example.wantudy.application.domain.Application;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-    Application save(Application application);
 }

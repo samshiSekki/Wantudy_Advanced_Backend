@@ -1,14 +1,11 @@
 package com.example.wantudy.application.domain;
 
 import com.example.wantudy.oauth.User;
-import com.example.wantudy.study.domain.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,8 +13,10 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "application")
 @JsonIgnoreProperties(value = {"interests", "keywords"})
 public class Application {
