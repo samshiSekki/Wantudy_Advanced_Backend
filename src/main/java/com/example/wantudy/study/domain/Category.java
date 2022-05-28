@@ -1,5 +1,9 @@
 package com.example.wantudy.study.domain;
 
+import com.example.wantudy.application.domain.Application;
+import com.example.wantudy.application.domain.ApplicationInterests;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -22,15 +26,25 @@ public class Category {
     @Column(name="category_name")
     private String categoryName;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    @JsonBackReference
+    private Category parent;
+
     @OneToMany(mappedBy = "category")
     private List<StudyCategory> studies = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Category parent;
-
     @OneToMany(mappedBy = "parent")
     private List<Category> child = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "category",
+            targetEntity = ApplicationInterests.class,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @JsonManagedReference
+    private List<ApplicationInterests> applicationInterests = new ArrayList<>();
 
     @Builder
     public Category(String categoryName){

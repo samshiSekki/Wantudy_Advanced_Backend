@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,6 +20,8 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
+@Configuration
+//@PropertySource(value = "application.properties")
 public class OAuth2Kakao {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;

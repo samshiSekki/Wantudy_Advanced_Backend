@@ -10,4 +10,5 @@ public class WantudyApplication {
 		SpringApplication.run(WantudyApplication.class, args);
 	}
 
+
 }
