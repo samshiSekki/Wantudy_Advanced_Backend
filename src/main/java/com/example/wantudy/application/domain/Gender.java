@@ -3,21 +3,20 @@ package com.example.wantudy.application.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import springfox.documentation.swagger2.mappers.EnumMapper;
 
 @Getter
-@AllArgsConstructor
-//@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum Gender {
+@RequiredArgsConstructor
+public enum Gender implements EnumMapperType {
     MALE("남자"),
     FEMALE("여자");
 
-    private String gender;
+    @Getter
+    private final String title; // 설명 조회 - "남자"
+
+    @Override
+    public String getCode() { // 이름을 조회 - MALE
+        return name();
+    }
 }
-//    public static Gender nameOf(String name) {
-//        for (Gender status : Gender.values()) {
-//            if (status.getGender().equals(name)) {
-//                return status;
-//            }
-//        }
-//        return null;
-//    }

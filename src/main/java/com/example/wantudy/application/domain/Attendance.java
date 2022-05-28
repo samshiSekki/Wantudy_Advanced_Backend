@@ -2,13 +2,20 @@ package com.example.wantudy.application.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
-public enum Attendance {
+@RequiredArgsConstructor
+public enum Attendance implements EnumMapperType {
     ATTENDING("재학"),
     TIMEOFF("휴학"),
     GRADUATION("졸업");
 
-    private String attendance;
+    @Getter
+    private final String title; // 설명 조회 - "남자"
+
+    @Override
+    public String getCode() { // 이름을 조회 - MALE
+        return name();
+    }
 }

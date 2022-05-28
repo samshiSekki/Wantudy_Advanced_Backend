@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,15 +41,19 @@ public class ApplicationService {
         /**
          * String으로 받아온 값 Enum 으로 변경 후 entity 생성
          */
-        String gender = applicationCreateDto.getGender();
+        String genderStr = applicationCreateDto.getGender(); // 여자라고 들어오면 value 값을 갖고 code 찾기
+        Gender gender = Arrays.stream(Gender.values()) // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
+                .filter(o1 -> o1.getTitle().equals(genderStr))
+                .findFirst()
+                .get();
 
-//        for(Gender g : Gender.values()) {
-//            System.out.println("g = " + g);
-//            System.out.println("g.getGender() = " + g.getGender());
-//        }
-//                getGender()
-        Attendance attendance = Attendance.valueOf(applicationCreateDto.getAttendance());
-        Application application = applicationCreateDto.toEntity(user, Gender.valueOf(gender), attendance);
+        String attendanceStr = applicationCreateDto.getAttendance();
+        Attendance attendance = Arrays.stream(Attendance.values())
+                .filter(o1 -> o1.getTitle().equals(attendanceStr))
+                .findFirst()
+                .get();
+
+        Application application = applicationCreateDto.toEntity(user, gender, attendance);
 
         List<String> interests = applicationCreateDto.getInterests();
         List<String> keywords = applicationCreateDto.getKeywords();
