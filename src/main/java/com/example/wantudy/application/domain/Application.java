@@ -60,8 +60,7 @@ public class Application {
             mappedBy = "application",
             targetEntity = ApplicationInterests.class,
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
+            orphanRemoval = true
     )
     @JsonManagedReference
     @Builder.Default
@@ -71,8 +70,7 @@ public class Application {
             mappedBy = "application",
             targetEntity = ApplicationKeyword.class,
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
+            orphanRemoval = true
     )
     @JsonManagedReference
     @Builder.Default

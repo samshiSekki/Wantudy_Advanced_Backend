@@ -30,7 +30,7 @@ public class Category {
     private List<StudyCategory> studies = new ArrayList<>();
 
     // category : applicationCategory = 1:N
-    @OneToMany(mappedBy = "applicationInterests", targetEntity = ApplicationInterests.class)
+    @OneToMany(mappedBy = "category", targetEntity = ApplicationInterests.class)
     @JsonManagedReference
     private List<ApplicationInterests> applicationInterests = new ArrayList<>();
 

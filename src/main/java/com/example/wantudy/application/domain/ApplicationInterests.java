@@ -17,7 +17,6 @@ import javax.validation.constraints.NotNull;
 @Table(name="applicationInterests")
 public class ApplicationInterests {
     @Id
-    @Column(name = "applicationId")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long applicationInterestsId;
 
