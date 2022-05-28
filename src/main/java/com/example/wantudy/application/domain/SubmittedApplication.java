@@ -1,4 +1,4 @@
 package com.example.wantudy.application.domain;
 
-//public class SubmittedApplication {
-//}
+public class SubmittedApplication {
+}

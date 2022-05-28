@@ -1,5 +1,6 @@
 package com.example.wantudy.application.domain;
 
+import com.example.wantudy.application.dto.ApplicationCreateDto;
 import com.example.wantudy.oauth.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -9,6 +10,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -74,4 +76,27 @@ public class Application {
     @JsonManagedReference
     @Builder.Default
     private List<ApplicationKeyword> keywords = new ArrayList<>(); // 자신을 표현하는 키워드
+
+    public void updateApplication(ApplicationCreateDto dto){
+        this.applicationName = dto.getApplicationName() == null ? this.applicationName : dto.getApplicationName();
+        this.organization = dto.getOrganization() == null ? this.organization : dto.getOrganization();
+        this.major = dto.getMajor() == null ? this.major : dto.getMajor();
+        this.semester = dto.getSemester() == null ? this.semester : dto.getSemester();
+        this.address = dto.getAddress() == null ? this.address : dto.getAddress();
+    }
+
+    public void toGenderEnum(String genderStr) {
+        this.gender = Arrays.stream(Gender.values()) // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
+                .filter(o1 -> o1.getTitle().equals(genderStr))
+                .findFirst()
+                .get();
+    }
+
+    public void toAttendanceEnum(String attendanceStr){
+        this.attendance = Arrays.stream(Attendance.values())
+                .filter(o1 -> o1.getTitle().equals(attendanceStr))
+                .findFirst()
+                .get();
+    }
+
 }

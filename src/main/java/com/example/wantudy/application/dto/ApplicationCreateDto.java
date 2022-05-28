@@ -46,16 +46,13 @@ public class ApplicationCreateDto {
     @ApiModelProperty(value = "자신을 표현하는 키워드", required = false, example = "['꼼꼼한', '성실한']")
     private List<String> keywords = new ArrayList<>();
 
-    public Application toEntity(User user, Gender gender, Attendance attendance){
-        return Application
-                .builder()
+    public Application toEntity(User user){
+        return Application.builder()
                 .user(user)
-                .gender(gender)
                 .applicationName(applicationName)
                 .age(age)
                 .organization(organization)
                 .major(major)
-                .attendance(attendance)
                 .semester(semester)
                 .address(address)
                 .build();

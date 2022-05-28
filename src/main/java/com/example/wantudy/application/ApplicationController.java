@@ -42,30 +42,32 @@ public class ApplicationController {
         return new ResponseEntity<>(new ResponseMessage(201, "지원서 작성 완료", application), HttpStatus.CREATED);
     }
 
-//    @PatchMapping("/{applicationId}") // 지원서 수정
-//    public ResponseEntity<ResponseMessage> updateApplication(@PathVariable("applicationId") Long applicationId, @RequestBody ReviewPostDto reviewUpdateDto) {
-//        User user = userService.findByEmail("test@naver.com");
-//        applicationService.updateApplication(user, appli)
-//        Review review = reviewService.findByReviewId(reviewId);
-//        if(review != null) {
-//            reviewService.updateReview(reviewUpdateDto, review);
-//            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
-//    }
+    @PatchMapping("/{applicationId}") // 지원서 수정
+    public ResponseEntity<ResponseMessage> updateApplication(@PathVariable("applicationId") Long applicationId, @RequestBody ApplicationCreateDto applicationUpdateDto) {
+        //        String email = principal.getName();
+//        User user = userService.findByEmail(email);
+//        if(user == null)
+//            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+        User user = userService.findByEmail("test@naver.com");
+
+        Application application = applicationService.findByApplicationId(applicationId);
+        if(application == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 지원서"), HttpStatus.NOT_FOUND);
+        applicationService.updateApplication(application, applicationUpdateDto);
+
+        return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
+
+    }
 
     @DeleteMapping("/{applicationId}") // 지원서 삭제
     public ResponseEntity<ResponseMessage> deleteApplication(@PathVariable("applicationId") Long applicationId, Principal principal) {
 //        String email = principal.getName();
 //        User user = userDetailsService.findUserByEmail(email);
-        User user = userService.findByEmail("test@naver.com");
+
         Application application = applicationService.findByApplicationId(applicationId);
-        System.out.println("application.getApplicationName() = " + application.getApplicationName());
         if(application == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 지원서"), HttpStatus.NOT_FOUND);
         applicationService.deleteApplication(application);
         return new ResponseEntity<>(new ResponseMessage(200, "지원서 삭제 완료"), HttpStatus.OK);
     }
-
-
 }

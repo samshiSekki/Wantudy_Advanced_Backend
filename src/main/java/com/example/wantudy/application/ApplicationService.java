@@ -31,8 +31,6 @@ public class ApplicationService {
 
     // 특정 지원서 받아오기
     public Application findByApplicationId(Long applicationId){
-        Optional<Application> application = applicationRepository.findById(applicationId);
-        System.out.println("application.get().getApplicationName() = " + application.get().getApplicationName());
         return applicationRepository.findById(applicationId).orElse(null);
     }
 
@@ -41,19 +39,13 @@ public class ApplicationService {
         /**
          * String으로 받아온 값 Enum 으로 변경 후 entity 생성
          */
+        Application application = applicationCreateDto.toEntity(user);
+
         String genderStr = applicationCreateDto.getGender(); // 여자라고 들어오면 value 값을 갖고 code 찾기
-        Gender gender = Arrays.stream(Gender.values()) // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
-                .filter(o1 -> o1.getTitle().equals(genderStr))
-                .findFirst()
-                .get();
-
         String attendanceStr = applicationCreateDto.getAttendance();
-        Attendance attendance = Arrays.stream(Attendance.values())
-                .filter(o1 -> o1.getTitle().equals(attendanceStr))
-                .findFirst()
-                .get();
 
-        Application application = applicationCreateDto.toEntity(user, gender, attendance);
+        application.toGenderEnum(genderStr);
+        application.toAttendanceEnum(attendanceStr);
 
         List<String> interests = applicationCreateDto.getInterests();
         List<String> keywords = applicationCreateDto.getKeywords();
@@ -62,6 +54,20 @@ public class ApplicationService {
         saveKeywords(keywords, application);
         return application;
     }
+
+//    public Gender toGenderEnum(String genderStr) {
+//        return Arrays.stream(Gender.values()) // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
+//                .filter(o1 -> o1.getTitle().equals(genderStr))
+//                .findFirst()
+//                .get();
+//    }
+//
+//    public Attendance toAttendanceEnum(String attendanceStr){
+//        return Arrays.stream(Attendance.values())
+//                .filter(o1 -> o1.getTitle().equals(attendanceStr))
+//                .findFirst()
+//                .get();
+//    }
 
     // 지원서 작성 시 관심분야 (카테고리) 저장
     public void saveInterests(List<String> interests, Application application){
@@ -95,31 +101,23 @@ public class ApplicationService {
         }
     }
 
-    // 지원서 작성
+    // 지원서 수정
+    public void updateApplication(Application application, ApplicationCreateDto applicationUpdateDto){
+        application.updateApplication(applicationUpdateDto);
+        String genderStr = applicationUpdateDto.getGender();
+        String attendanceStr = applicationUpdateDto.getAttendance();
+
+        if(genderStr != null)
+            application.toGenderEnum(genderStr);
+
+        if(attendanceStr != null)
+            application.toAttendanceEnum(attendanceStr);
+
+        applicationRepository.save(application);
+    }
+
+    // 지원서 삭제
     public void deleteApplication(Application application){
         applicationRepository.delete(application);
     }
-
-//    //  저장
-//    public void manageHashtag(List<String> hashtags, Lecture lecture){
-//        for (int i = 0; i < hashtags.size(); i++) {
-//            Optional<Hashtag> existedHashtag = hashtagRepository.findByHashtagName(hashtags.get(i));
-//            LectureHashtag lectureHashtag = new LectureHashtag();
-//            if(existedHashtag.isPresent()) { // 이미 들어간 해시태그라면 id 받아오기
-//                lectureHashtag.setHashtag(existedHashtag.get());
-//            }
-//            else { // 없는 해시태그라면 해시태그를 생성하고 나서 lectureHashtag에 넣기
-//                Hashtag hashtag = new Hashtag(hashtags.get(i));
-//                hashtagRepository.save(hashtag);
-//                lectureHashtag.setHashtag(hashtag);
-//            }
-//            lectureHashtag.setLecture(lecture);
-//            lectureHashtagRepository.save(lectureHashtag);
-//        }
-//    }
-
-    // 지원서 수정
-    /*public void updateApplication(LectureDto lectureDto, Long lectureId){
-        lectureRepository.updateLecture(lectureDto, lectureId);
-    }*/
 }
