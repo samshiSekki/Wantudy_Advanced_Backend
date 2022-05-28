@@ -27,6 +27,11 @@ public class CategoryService {
         return all.stream().map(CategoryDto::new).collect(Collectors.toList());
     }
 
+    public Category findCategory(String categoryName){
+        Category category = categoryRepository.findByCategoryName(categoryName);
+        return category;
+    }
+
     public Category findParent(String parentCategory) {
         Category parent = categoryRepository.findByCategoryName(parentCategory);
         return parent;
@@ -62,6 +67,7 @@ public class CategoryService {
             else {
                 Category category= new Category(categories.get(i));
                 categoryRepository.save(category);
+
                 category.setParent(parent);
                 parent.addChildCategory(category);
                 studyCategory.setCategory(category);
@@ -70,5 +76,4 @@ public class CategoryService {
             studyCategoryRepository.save(studyCategory);
         }
     }
-
 }

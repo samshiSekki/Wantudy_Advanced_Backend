@@ -2,7 +2,7 @@ package com.example.wantudy.study;
 
 import com.example.wantudy.oauth.User;
 import com.example.wantudy.study.domain.*;
-import com.example.wantudy.study.dto.StudyCreateDto;
+import com.example.wantudy.study.dto.StudyUpdateDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -46,6 +46,10 @@ public class Study {
     @Column(name = "study_file")
     private List<StudyFile> studyFiles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "comments")
+    private List<Comment> comments = new ArrayList<>();
+
     @Column(name = "fixed_study_schedule")
     private String fixedStudySchedule;
 
@@ -60,6 +64,9 @@ public class Study {
 
     @Column(name = "format")
     private String format;
+
+    @Column(name = "on_off")
+    private String onOff;
 
     @Column(name = "location")
     private String location;
@@ -98,11 +105,12 @@ public class Study {
     }
 
     @Builder
-    public Study(String studyName, String description, String level, String format, String location, String period, Integer peopleNum, LocalDate deadline) {
+    public Study(String studyName, String description, String level, String format, String onOff, String location, String period, Integer peopleNum, LocalDate deadline) {
         this.studyName = studyName;
         this.description = description;
         this.level = level;
         this.format = format;
+        this.onOff = onOff;
         this.location = location;
         this.period = period;
         this.peopleNum = peopleNum;
@@ -120,15 +128,23 @@ public class Study {
 //            studyFile.setStudy(this);
     }
 
-    public void updateStudy(StudyCreateDto studyCreateDto){
-        this.studyName = studyCreateDto.getStudyName();
-        this.description = studyCreateDto.getDescription();
-        this.level = studyCreateDto.getLevel();
-        this.format = studyCreateDto.getFormat();
-        this.location = studyCreateDto.getLocation();
-        this.period = studyCreateDto.getPeriod();
-        this.peopleNum = studyCreateDto.getPeopleNum();
-        this.deadline = studyCreateDto.getDeadline();
+    public void removeStudyFiles(StudyFile studyFile){
+        this.studyFiles.remove(studyFile);
     }
 
+    public void addComments(Comment comment){
+        this.comments.add(comment);
+    }
+
+    // -- 수정 메서드 -- //
+    public void updateStudy(StudyUpdateDto studyUpdateDto){
+        this.studyName = studyUpdateDto.getStudyName();
+        this.description = studyUpdateDto.getDescription();
+        this.level = studyUpdateDto.getLevel();
+        this.format = studyUpdateDto.getFormat();
+        this.location = studyUpdateDto.getLocation();
+        this.period = studyUpdateDto.getPeriod();
+        this.peopleNum = studyUpdateDto.getPeopleNum();
+        this.deadline = studyUpdateDto.getDeadline();
+    }
 }

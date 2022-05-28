@@ -2,10 +2,10 @@ package com.example.wantudy.study.dto;
 
 import com.example.wantudy.study.Study;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -15,13 +15,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@ApiModel
 public class StudyUpdateDto {
-
-    @ApiModelProperty(value = "studyId", required = true)
-    private long studyId;
-
-    @ApiModelProperty(value = "스터디 파일", required = false)
-    private List<MultipartFile> multipartFile = new ArrayList<>();
 
     @ApiModelProperty(value = "스터디 이름", required = false, example = "토플 스터디")
     private String studyName;
@@ -35,7 +30,10 @@ public class StudyUpdateDto {
     @ApiModelProperty(value = "스터디 형식", required = false, example = "다함께 공부")
     private String format;
 
-    @ApiModelProperty(value = "스터디 진행 위치", required = false, example = "마포구")
+    @ApiModelProperty(value="스터디 온오프 여부", example = "오프라인")
+    private String onOff;
+
+    @ApiModelProperty(value = "스터디 진행 위치", required = false, example = "서울 특별시 마포구")
     private String location;
 
     @ApiModelProperty(value = "스터디 기간", required = false, example = "6개월")
@@ -45,6 +43,7 @@ public class StudyUpdateDto {
     private Integer peopleNum;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "스터디 모집 기간", required = false, example = "2022-05-30")
     private LocalDate deadline;
 
@@ -67,6 +66,7 @@ public class StudyUpdateDto {
                 .description(description)
                 .level(level)
                 .format(format)
+                .onOff(onOff)
                 .location(location)
                 .period(period)
                 .peopleNum(peopleNum)
