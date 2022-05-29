@@ -23,7 +23,12 @@ public class ApplicationService {
     private final ApplicationInterestsRepository applicationInterestsRepository;
     private final ApplicationKeywordRepository applicationKeywordsRepository;
 
-    // 특정 지원서 받아오기
+    // 모든 지원서 조회
+    public List<Application> getAllApplications(User user){
+        return applicationRepository.findByUser(user);
+    }
+
+    // 특정 지원서 조회
     public Application findByApplicationId(Long applicationId){
         return applicationRepository.findById(applicationId).orElse(null);
     }
