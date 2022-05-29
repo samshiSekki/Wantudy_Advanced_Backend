@@ -7,8 +7,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.*;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "application")
 @JsonIgnoreProperties(value = {"interests", "keywords"})
 public class Application {
@@ -32,6 +36,10 @@ public class Application {
     @JsonBackReference // 연관관계의 주인
     @NotNull
     private User user;
+
+    @Column
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @Column
     private String applicationName;
@@ -85,8 +93,9 @@ public class Application {
         this.address = dto.getAddress() == null ? this.address : dto.getAddress();
     }
 
+    // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
     public void toGenderEnum(String genderStr) {
-        this.gender = Arrays.stream(Gender.values()) // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
+        this.gender = Arrays.stream(Gender.values())
                 .filter(o1 -> o1.getTitle().equals(genderStr))
                 .findFirst()
                 .get();
@@ -98,5 +107,4 @@ public class Application {
                 .findFirst()
                 .get();
     }
-
 }
