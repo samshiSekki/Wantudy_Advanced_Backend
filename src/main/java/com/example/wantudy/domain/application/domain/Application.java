@@ -12,9 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
@@ -24,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "application")
-@JsonIgnoreProperties(value = {"interests", "keywords"})
+//@JsonIgnoreProperties(value = {"interests", "keywords"})
 public class Application {
     @Id
     @Column(name = "applicationId")
@@ -66,6 +64,7 @@ public class Application {
     private String address;
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             mappedBy = "application",
             targetEntity = ApplicationInterests.class,
             cascade = CascadeType.ALL,
@@ -73,9 +72,10 @@ public class Application {
     )
     @JsonManagedReference
     @Builder.Default
-    private List<ApplicationInterests> interests = new ArrayList<>();// 관심 분야
+    private Set<ApplicationInterests> interests = new HashSet<>();
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             mappedBy = "application",
             targetEntity = ApplicationKeyword.class,
             cascade = CascadeType.ALL,
@@ -83,7 +83,7 @@ public class Application {
     )
     @JsonManagedReference
     @Builder.Default
-    private List<ApplicationKeyword> keywords = new ArrayList<>(); // 자신을 표현하는 키워드
+    private Set<ApplicationKeyword> keywords = new HashSet<>();
 
     public void updateApplication(ApplicationCreateDto dto){
         this.applicationName = dto.getApplicationName() == null ? this.applicationName : dto.getApplicationName();
@@ -107,4 +107,16 @@ public class Application {
                 .findFirst()
                 .get();
     }
+
+//    public static ApplicationCreateDto from(Application application){
+//        return Application.ApplicationCreateDto()
+//                .nickname(review.getUser().getUserNickname())
+//                .reviewId(review.getReviewId())
+//                .rate(review.getRate())
+//                .commentTitle(review.getCommentTitle())
+//                .comment(review.getComment())
+//                .createdDate(review.getCreatedDate())
+//                .writerStatus(false)
+//                .build();
+//    }
 }

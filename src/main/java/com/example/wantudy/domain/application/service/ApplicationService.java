@@ -29,8 +29,19 @@ public class ApplicationService {
     }
 
     // 특정 지원서 조회
+//    public ApplicationCreateDto findByApplicationId(Long applicationId){
+//        Application application = applicationRepository.findById(applicationId).orElse(null);
+//        ApplicationCreateDto applicationCreateDto = ApplicationCreateDto.toDto(application);
+//        return applicationCreateDto;
+//    }
     public Application findByApplicationId(Long applicationId){
-        return applicationRepository.findById(applicationId).orElse(null);
+//        return applicationRepository.findById(applicationId).orElse(null);
+        Application application2 = applicationRepository.findById(applicationId).get();
+        List<ApplicationInterests> applicationInterests = applicationRepository.getApplication(application2);
+//        for(int i=0;i<applicationInterests.size();i++){
+//            System.out.println("applicationInterests = " + applicationInterests.get(i).getApplication().getInterests();
+//        }
+        return application2;
     }
 
     // 지원서 작성
@@ -54,19 +65,16 @@ public class ApplicationService {
         return application;
     }
 
-//    public Gender toGenderEnum(String genderStr) {
-//        return Arrays.stream(Gender.values()) // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
-//                .filter(o1 -> o1.getTitle().equals(genderStr))
-//                .findFirst()
-//                .get();
-//    }
-//
-//    public Attendance toAttendanceEnum(String attendanceStr){
-//        return Arrays.stream(Attendance.values())
-//                .filter(o1 -> o1.getTitle().equals(attendanceStr))
-//                .findFirst()
-//                .get();
-//    }
+    // 지원서 연관 관심분야 조회
+    public void getInterests(Application application){
+//        List<String> interests =
+    }
+
+    // 지원서 연관 관심분야 조회
+    public void getKeywords(Application application){
+
+    }
+
 
     // 지원서 작성 시 관심분야 (카테고리) 저장
     public void saveInterests(List<String> interests, Application application){

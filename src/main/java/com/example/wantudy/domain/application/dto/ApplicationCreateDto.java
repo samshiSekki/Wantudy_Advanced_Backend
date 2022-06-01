@@ -4,6 +4,7 @@ import com.example.wantudy.domain.application.domain.Application;
 import com.example.wantudy.global.security.domain.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@ApiModel(value = "지원서 작성 DTO")
+@Builder
+@ApiModel(value = "지원서 작성/조회 DTO")
 public class ApplicationCreateDto {
     @ApiModelProperty(value = "지원서명", required = false)
     private String applicationName;
@@ -38,9 +40,11 @@ public class ApplicationCreateDto {
     private String address;
 
     @ApiModelProperty(value = "관심 분야", required = false, example = "['마케팅', '기획']")
+    @Builder.Default
     private List<String> interests = new ArrayList<>();
 
     @ApiModelProperty(value = "자신을 표현하는 키워드", required = false, example = "['꼼꼼한', '성실한']")
+    @Builder.Default
     private List<String> keywords = new ArrayList<>();
 
     public Application toEntity(User user){
@@ -52,6 +56,19 @@ public class ApplicationCreateDto {
                 .major(major)
                 .semester(semester)
                 .address(address)
+                .build();
+    }
+
+    public static ApplicationCreateDto toDto(Application application){
+        return ApplicationCreateDto.builder()
+                .applicationName(application.getApplicationName())
+                .gender(application.getGender().getTitle())
+                .age(application.getAge())
+                .organization(application.getOrganization())
+                .major(application.getMajor())
+                .attendance(application.getAttendance().getTitle())
+                .semester(application.getSemester())
+                .address(application.getAddress())
                 .build();
     }
 }

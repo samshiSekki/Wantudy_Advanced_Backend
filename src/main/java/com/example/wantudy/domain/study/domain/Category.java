@@ -7,7 +7,9 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -35,13 +37,14 @@ public class Category {
     private List<Category> child = new ArrayList<>();
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             mappedBy = "category",
             targetEntity = ApplicationInterests.class,
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     @JsonManagedReference
-    private List<ApplicationInterests> applicationInterests = new ArrayList<>();
+    private Set<ApplicationInterests> applicationInterests = new HashSet<>();
 
     @Builder
     public Category(String categoryName){

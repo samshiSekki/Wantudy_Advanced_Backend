@@ -6,7 +6,9 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -24,13 +26,14 @@ public class Keyword {
     private String keyword;
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             mappedBy = "keyword",
             targetEntity = ApplicationKeyword.class,
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     @JsonManagedReference
-    private List<ApplicationKeyword> applicationKeywords = new ArrayList<>();
+    private Set<ApplicationKeyword> applicationKeywords = new HashSet<>();
 
     @Builder
     public Keyword(String keyword) {
