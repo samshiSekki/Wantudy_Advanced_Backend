@@ -5,14 +5,15 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/app # 인스턴스에서 파일이 저장될 위치
+    destination: /home/ubuntu/wantudy # 인스턴스에서 파일이 저장될 위치
+    overwrite: yes
 permissions:
-  - object: /home/ubuntu/app
+  - object: /
+    pattern: "**"
     owner: ubuntu
     group: ubuntu
-    mode: 755
-hooks:
-  AfterInstall: # 설치가 된 이후에 deploy.sh 라는 스크립트 실행하도록 함
-    - location: scripts/deploy.sh
-      timeout: 60
-      runas: root
+#hooks:
+#  AfterInstall: # 설치가 된 이후에 deploy.sh 라는 스크립트 실행하도록 함
+#    - location: scripts/deploy.sh
+#      timeout: 60
+#      runas: root

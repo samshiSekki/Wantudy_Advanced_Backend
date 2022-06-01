@@ -7,11 +7,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.*;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Getter
 @Setter
@@ -19,8 +20,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "application")
-@JsonIgnoreProperties(value = {"interests", "keywords"})
+//@JsonIgnoreProperties(value = {"interests", "keywords"})
 public class Application {
     @Id
     @Column(name = "applicationId")
@@ -32,6 +34,10 @@ public class Application {
     @JsonBackReference // 연관관계의 주인
     @NotNull
     private User user;
+
+    @Column
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @Column
     private String applicationName;
@@ -58,6 +64,7 @@ public class Application {
     private String address;
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             mappedBy = "application",
             targetEntity = ApplicationInterests.class,
             cascade = CascadeType.ALL,
@@ -65,9 +72,10 @@ public class Application {
     )
     @JsonManagedReference
     @Builder.Default
-    private List<ApplicationInterests> interests = new ArrayList<>();// 관심 분야
+    private Set<ApplicationInterests> interests = new HashSet<>();
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             mappedBy = "application",
             targetEntity = ApplicationKeyword.class,
             cascade = CascadeType.ALL,
@@ -75,7 +83,7 @@ public class Application {
     )
     @JsonManagedReference
     @Builder.Default
-    private List<ApplicationKeyword> keywords = new ArrayList<>(); // 자신을 표현하는 키워드
+    private Set<ApplicationKeyword> keywords = new HashSet<>();
 
     public void updateApplication(ApplicationCreateDto dto){
         this.applicationName = dto.getApplicationName() == null ? this.applicationName : dto.getApplicationName();
@@ -85,8 +93,9 @@ public class Application {
         this.address = dto.getAddress() == null ? this.address : dto.getAddress();
     }
 
+    // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
     public void toGenderEnum(String genderStr) {
-        this.gender = Arrays.stream(Gender.values()) // Gender Enum MALE, FEMALE 에서 title 값이 들어온 string 과 동일한 애 찾기
+        this.gender = Arrays.stream(Gender.values())
                 .filter(o1 -> o1.getTitle().equals(genderStr))
                 .findFirst()
                 .get();
@@ -99,4 +108,15 @@ public class Application {
                 .get();
     }
 
+//    public static ApplicationCreateDto from(Application application){
+//        return Application.ApplicationCreateDto()
+//                .nickname(review.getUser().getUserNickname())
+//                .reviewId(review.getReviewId())
+//                .rate(review.getRate())
+//                .commentTitle(review.getCommentTitle())
+//                .comment(review.getComment())
+//                .createdDate(review.getCreatedDate())
+//                .writerStatus(false)
+//                .build();
+//    }
 }
