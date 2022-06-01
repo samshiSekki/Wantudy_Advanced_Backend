@@ -25,7 +25,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
-          
+      
+      - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
+        run: ./gradlew build -x test
+        shell: bash
+
       ### 새로 추가한 부분 ###
       - name: Make zip file
         run: zip -r ./$GITHUB_SHA.zip .
@@ -40,8 +44,13 @@ jobs:
           
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
-          
-# ------------------
+      
+      - name: Code Deploy #4 // 1.code deploy 애플리케이션 이름/ 2. 배포 방법 설정 (한번에 배포) / 3. codedeploy 배포그룹명 / 4. s3위치
+        run: aws deploy create-deployment --application-name wantudy-github-action
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name wantudy-github-action-group
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+  # ------------------
         
           
 #     - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
